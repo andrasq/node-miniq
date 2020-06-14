@@ -1,0 +1,18 @@
+{
+  "name": "minque",
+  "description": "very lean durable job queue",
+  "version": "0.0.0",
+  "keywords": ["queue", "job", "serverless"],
+
+  "dependencies": {
+    "aflow": "0.10.1"
+  },
+  "devDependencies": {
+  },
+
+  "scripts": {
+    "test": "qnit test/test-*",
+    "coverage": "nyc -r text -r lcov npm test",
+    "clean": "rm -rf coverage .nyc_output"
+  }
+}
