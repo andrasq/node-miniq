@@ -28,7 +28,7 @@ module.exports = {
         'adds many jobs quickly': function(t) {
             var uut = new StoreArray();
             var count = 0;
-            var payload = [{}, {}, {}, {}, {}];
+            var payload = ["data1", "data2", "data3", "data4", "data5"];
             var t1 = Date.now();
             aflow.repeatUntil(function(done) {
                 uut.addJobs('type1', payload, function(err) {
