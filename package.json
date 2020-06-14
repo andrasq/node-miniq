@@ -2,7 +2,14 @@
   "name": "minque",
   "description": "very lean durable job queue",
   "version": "0.0.0",
+  "main": "lib/app",
   "keywords": ["queue", "job", "serverless"],
+  "files": ["lib", "test", "README.md"],
+
+  "author": "andrasq@github.com",
+  "license": "Apache-2.0",
+  "engines": { "node": ">= 0.10" },
+  "readme": "see README.md in the repo",
 
   "dependencies": {
     "aflow": "0.10.1"
