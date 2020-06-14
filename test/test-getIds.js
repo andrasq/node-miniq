@@ -2,6 +2,7 @@
 
 var aflow = require('aflow');
 var getIds = require('../lib/getIds');
+var getIds = require('../lib/utils').getIds;
 
 module.exports = {
     'returns monotonically increasing ids': function(t) {
