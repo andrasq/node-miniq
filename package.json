@@ -12,7 +12,6 @@
   "readme": "see README.md in the repo",
 
   "dependencies": {
-    "aflow": "0.10.1"
   },
   "devDependencies": {
   },
