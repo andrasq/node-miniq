@@ -268,6 +268,50 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
         }
     },
 
+    'invoke': {
+        'calls the handler': function(t) {
+            t.deepEqual(utils.invoke(function() { return Object.values(arguments) }, [1, 2, 3]), [1, 2, 3]);
+            t.done();
+        },
+
+        'polyfill calls the handler': function(t) {
+            t.deepEqual(utils._invoke(function() { return Object.values(arguments) }, [1, 2, 3]), [1, 2, 3]);
+            t.done();
+        },
+    },
+
+    'varargs': {
+        'creates a function': function(t) {
+            function noop() {}
+            var f1 = utils.varargs(noop);
+            var f2 = utils.varargs(noop);
+            t.equal(typeof f1, 'function');
+            t.equal(typeof f2, 'function');
+            t.notEqual(f1, f2);
+            t.done();
+        },
+
+        'passes its argumentsto handler and returns handler result': function(t) {
+            var fn = utils.varargs(function handler(argv){ return argv });
+            t.deepEqual(fn(1, 2, 3), [1, 2, 3]);
+            t.done();
+        },
+
+        'passes self to handler': function(t) {
+            var self = { a: 123 };
+            var a = undefined;
+            var fn = utils.varargs(function handler(argv, obj) { t.equal(obj, self); t.done() }, self);
+            fn();
+        },
+
+        'polyfill passes its argumentsto handler and returns handler result': function(t) {
+            var self = {};
+            var fn = utils._varargs(function handler(argv, obj) { t.equal(obj, self); return argv }, self);
+            t.deepEqual(fn(1, 2, 3), [1, 2, 3]);
+            t.done();
+        },
+    },
+
     'makeError': {
         'returns a new Error': function(t) {
             t.ok(utils.makeError() instanceof Error);
