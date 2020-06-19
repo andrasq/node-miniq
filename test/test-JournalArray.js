@@ -2,6 +2,7 @@
 
 var Journal = require('../lib/Journal');
 var JournalArray = require('../lib/JournalArray');
+var implemented = require('./utils').implemented;
 
 module.exports = {
     setUp: function(done) {
@@ -11,15 +12,7 @@ module.exports = {
 
     'constructor': {
         'implements Journal': function(t) {
-            var base = new Journal();
-            var uut = new JournalArray();
-            for (var m in base) {
-                t.equal(typeof base[m], typeof uut[m]);
-                if (typeof base[m] === 'function') {
-                    t.notEqual(base[m], uut[m]);
-                    t.equal(base[m].length, uut[m].length);
-                }
-            }
+            t.ok(implemented(new JournalArray(), Journal));
             t.done();
         },
     },
