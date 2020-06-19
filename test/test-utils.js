@@ -337,7 +337,7 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
 
     'abstract': {
         'returns a method that expects the right arguments but throws': function(t) {
-            var method = utils.abstract('methodName', 'arg1', 'arg2');
+            var method = utils.abstract('methodName', 'x: int', 'y: string[]');
             t.equal(typeof method, 'function');
             t.equal(method.length, 2);
             t.equal(method.name, 'methodName');

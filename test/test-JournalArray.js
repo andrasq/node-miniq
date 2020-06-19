@@ -1,11 +1,27 @@
 'use strict';
 
+var Journal = require('../lib/Journal');
 var JournalArray = require('../lib/JournalArray');
 
 module.exports = {
     setUp: function(done) {
         this.uut = new JournalArray();
         done();
+    },
+
+    'constructor': {
+        'implements Journal': function(t) {
+            var base = new Journal();
+            var uut = new JournalArray();
+            for (var m in base) {
+                t.equal(typeof base[m], typeof uut[m]);
+                if (typeof base[m] === 'function') {
+                    t.notEqual(base[m], uut[m]);
+                    t.equal(base[m].length, uut[m].length);
+                }
+            }
+            t.done();
+        },
     },
 
     'write': {
