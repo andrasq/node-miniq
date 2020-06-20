@@ -12,7 +12,7 @@
   "readme": "see README.md in the repo",
 
   "dependencies": {
-    "microrest": "0.6.2",
+    "microrest": "0.6.2"
   },
   "devDependencies": {
   },
