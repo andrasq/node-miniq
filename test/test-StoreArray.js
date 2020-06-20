@@ -68,7 +68,15 @@ console.log("AR: added 300k jobs in batches of %d in %d ms", payload.length, t2 
                     t.deepEqual(Object.keys(types).sort(), ['type-0', 'type-1']);
                     cut.addJobs('type-2', [{}, {}, {}], function(err, ids) {
                         if (err) return next(err);
-                        cut.getJobtypes(next);
+                        cut.addJobs('type-3', [{}, {}], function(err, ids) {
+                            if (err) return next(err)
+                            // make type-3 jobs not elighible to be picked, should then be omitted from list
+                            var jobs = cut._filterJobs(function(job) { return job.type === 'type-3' }, { fetch: true });
+                            t.equal(jobs.length, 2);
+                            jobs[0].lock = 'someLock';
+                            jobs[1].dt = new Date(Date.now() + 1000);
+                            cut.getJobtypes(next);
+                        })
                     })
                 },
                 function(next, types) {
@@ -85,6 +93,30 @@ console.log("AR: added 300k jobs in batches of %d in %d ms", payload.length, t2 
             ], function(err) {
                 t.done(err);
             });
+        },
+    },
+
+    'getAllJobtypes': {
+        'returns all jobtypes': function(t) {
+            var uut = new StoreArray();
+            utils.iterateSteps([
+                function(next) {
+                    uut.addJobs('type-1', [{}, {}], next);
+                },
+                function(next) {
+                    uut.addJobs('type-2', [{}, {}], next);
+                },
+                function(next) {
+                    uut._filterJobs(function(job) { job.lock = 'someLock' });
+                    uut.getAllJobtypes(next);
+                },
+                function(next, types) {
+                    t.deepEqual(Object.keys(types).sort(), ['type-1', 'type-2']);
+                    next();
+                }
+            ], function(err) {
+                t.done(err);
+            })
         },
     },
 }
