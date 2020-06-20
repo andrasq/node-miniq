@@ -18,13 +18,19 @@ module.exports = {
     },
 
     'write': {
+        'accepts a long string of multiple lines': function(t) {
+            var uut = this.uut;
+            uut.write('foo\nbar\n');
+            uut.write('zed');
+            t.deepEqual(this.uut.lines, ['foo', 'bar', 'zed']);
+            t.done();
+        },
+
         'accepts an array of lines': function(t) {
             var uut = this.uut;
             uut.write(['foo', 'bar']);
             uut.write(['zed']);
             t.deepEqual(this.uut.lines, ['foo', 'bar', 'zed']);
-            t.throws(function() { uut.write() }, /not an array/);
-            t.throws(function() { uut.write(123) }, /not an array/);
             t.done();
         },
 
