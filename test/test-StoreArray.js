@@ -1,6 +1,6 @@
 'use strict';
 
-var aflow = require('aflow');
+var utils = require('../lib/utils');
 
 var StoreArray = require('../lib/StoreArray');
 
@@ -30,7 +30,7 @@ module.exports = {
             var count = 0;
             var payload = ["data1", "data2", "data3", "data4", "data5"];
             var t1 = Date.now();
-            aflow.repeatUntil(function(done) {
+            utils.repeatUntil(function(done) {
                 uut.addJobs('type1', payload, function(err) {
                     // 90 ms for 300k in batches of 10
                     done(err, (count += payload.length) >= 300000);
@@ -46,35 +46,35 @@ console.log("AR: added 300k jobs in batches of %d in %d ms", payload.length, t2 
     'getJobtypes': {
         'returns the ready jobtypes': function(t) {
             var cut = new StoreArray();
-            aflow.flow([
+            utils.iterateSteps([
                 function(next) {
                     cut.getJobtypes(next);
                 },
                 function(next, types) {
                     t.deepEqual(Object.keys(types), []);
                     cut.addJobs('type-1', [{}, {}], function(err, ids) {
-                        t.ifError(err);
+                        if (err) return next(err);
                         cut.getJobtypes(next);
                     })
                 },
                 function(next, types) {
                     t.deepEqual(Object.keys(types), ['type-1']);
                     cut.addJobs('type-0', [{}], function(err, ids) {
-                        t.ifError(err);
+                        if (err) return next(err);
                         cut.getJobtypes(next);
                     })
                 },
                 function(next, types) {
                     t.deepEqual(Object.keys(types).sort(), ['type-0', 'type-1']);
                     cut.addJobs('type-2', [{}, {}, {}], function(err, ids) {
-                        t.ifError(err);
+                        if (err) return next(err);
                         cut.getJobtypes(next);
                     })
                 },
                 function(next, types) {
                     t.deepEqual(Object.keys(types).sort(), ['type-0', 'type-1', 'type-2']);
                     cut.addJobs('type-3', [{}], { delayMs: 100 }, function(err, ids) {
-                        t.ifError(err);
+                        if (err) return next(err);
                         cut.getJobtypes(next);
                     })
                 },
