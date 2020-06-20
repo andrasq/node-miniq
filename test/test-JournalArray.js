@@ -33,11 +33,15 @@ module.exports = {
             this.uut.write(['foo'], t.done);
         },
 
-        'wsync should call callback': function(t) {
+        'wsync should call callbacks': function(t) {
             t.throws(function() { new JournalArray().wsync() }, /not a function/);
             t.throws(function() { new JournalArray().wsync(123) }, /not a function/);
-            this.uut.write(['foo']);
-            this.uut.wsync(t.done);
+            var ncalls = 0;
+            this.uut.write(['foo'], function() { ncalls += 1 });
+            this.uut.write(['bar'], function() { ncalls += 1 });
+            this.uut.wsync(function(err) {
+                if (ncalls === 2) t.done();
+            });
         },
     },
 
