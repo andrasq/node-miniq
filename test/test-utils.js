@@ -147,7 +147,25 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
                 for (var i = 1; i < ids.length; i++) t.ok(ids[i - 1] < ids[i]);
                 t.done();
             })
-        }
+        },
+
+        'correctly rolls sequence just before timetamp change': function(t) {
+            utils._configure(function() {
+                // configure the ids to the end of the sequence
+                _idSequence = _idSequenceLimit - 2;
+                _sequencePrefix = encode64(_idSequence >>> 6);
+                _idTimestamp = Date.now() + 20;
+            });
+            // align to the start of a new millisecond
+            utils.getNewerTimestamp(Date.now());
+
+            // overflow the sequence all during the same millisecond
+            var ids = new Array();
+            for (var i = 0; i < 5; i++) ids.push(utils.getId('-sys-'));
+
+            for (var i = 1; i < 5; i++) t.ok(ids[i - 1] < ids[i]);
+            t.done();
+        },
     },
 
     'repeatUntil': {
@@ -342,6 +360,13 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
             t.equal(method.length, 2);
             t.equal(method.name, 'methodName');
             t.throws(function() { method() }, /not implemented/);
+            t.done();
+        },
+
+        'accepts no more than 9 args': function(t) {
+            t.throws(
+                function() { utils.abstract('invalid', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10') },
+                /too many arguments/);
             t.done();
         },
     },
