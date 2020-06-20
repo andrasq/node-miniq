@@ -33,11 +33,11 @@ module.exports = {
             this.uut.write(['foo'], t.done);
         },
 
-        'syncWrite should call callback': function(t) {
-            t.throws(function() { new JournalArray().syncWrite() }, /not a function/);
-            t.throws(function() { new JournalArray().syncWrite(123) }, /not a function/);
+        'wsync should call callback': function(t) {
+            t.throws(function() { new JournalArray().wsync() }, /not a function/);
+            t.throws(function() { new JournalArray().wsync(123) }, /not a function/);
             this.uut.write(['foo']);
-            this.uut.syncWrite(t.done);
+            this.uut.wsync(t.done);
         },
     },
 
@@ -110,17 +110,17 @@ module.exports = {
             })
         },
 
-        'syncRead expires the token': function(t) {
+        'rsync expires the token': function(t) {
             var uut = this.uut;
             var tok = uut.readReserve(1, 100);
-            uut.syncRead(tok);
+            uut.rsync(tok);
             uut.read(tok, function(err, lines) {
                 t.ok(err);
                 t.contains(err.message, /expired/);
 
                 // can be called multiple times
-                uut.syncRead(tok);
-                uut.syncRead(tok);
+                uut.rsync(tok);
+                uut.rsync(tok);
 
                 t.done();
             })
