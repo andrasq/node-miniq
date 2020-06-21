@@ -2,7 +2,7 @@
 
 var Journal = require('../lib/Journal');
 var JournalArray = require('../lib/JournalArray');
-var implemented = require('./utils').implemented;
+var testUtils = require('../lib/testUtils');
 
 module.exports = {
     setUp: function(done) {
@@ -12,7 +12,7 @@ module.exports = {
 
     'constructor': {
         'implements Journal': function(t) {
-            t.ok(implemented(new JournalArray(), Journal));
+            t.ok(testUtils.implements(new JournalArray(), Journal));
             t.done();
         },
     },
