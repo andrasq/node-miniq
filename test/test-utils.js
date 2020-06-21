@@ -283,7 +283,19 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
                     })
                 })
             })
-        }
+        },
+
+        'reports errors to the callback': function(t) {
+            var error;
+            this.uut.schedule(10, function(cb) { cb() });
+            this.uut.schedule(10, function(cb) { cb('mock error') }, function(err) { error = err });
+            this.uut.schedule(10, function(cb) { cb('another error') });
+            this.uut.run(Date.now() + 11, function(err) {
+                t.ifError(err);
+                t.equal(error, 'mock error');
+                t.done();
+            })
+        },
     },
 
     'invoke': {
