@@ -73,6 +73,33 @@ module.exports = {
         },
     },
 
+    'encode64': {
+        'converts number to radix 64': function(t) {
+            t.equal(utils.encode64(0), '0');
+            t.equal(utils.encode64(1), '1');
+            for (var i = 0; i < 300000; i++) {
+                t.equal(utils.encode64(i), utils.encode64(i));
+                t.ok(utils.pad(utils.encode64(i), 6) < utils.pad(utils.encode64(i + 1), 6), i);
+            }
+            t.done();
+        },
+    },
+
+    'decode64': {
+        'decodes a radix 64 string into a number': function(t) {
+            for (var i = 0; i < 1000000; i++) {
+                t.equal(utils.decode64(utils.encode64(i)), i);
+                // 1e6 in 80ms, 12.5m/s for the pair
+            }
+            t.done();
+        },
+
+        'stops parsing on the first non-numeric char': function(t) {
+            t.equal(utils.decode64('012-3a'), 64 + 2);
+            t.done();
+        },
+    },
+
     'getNewerTimestamp': {
         'returns a current-ish timestamp': function(t) {
             // prime this function, is off by 100ms on first call
