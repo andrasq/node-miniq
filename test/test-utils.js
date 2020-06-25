@@ -327,12 +327,12 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
 
     'invoke': {
         'calls the handler': function(t) {
-            t.deepEqual(utils.invoke(function() { return Object.values(arguments) }, [1, 2, 3]), [1, 2, 3]);
+            t.deepEqual(utils.invoke(function() { return [].slice.apply(arguments) }, [1, 2, 3]), [1, 2, 3]);
             t.done();
         },
 
         'polyfill calls the handler': function(t) {
-            t.deepEqual(utils._invoke(function() { return Object.values(arguments) }, [1, 2, 3]), [1, 2, 3]);
+            t.deepEqual(utils._invoke(function() { return [].slice.apply(arguments) }, [1, 2, 3]), [1, 2, 3]);
             t.done();
         },
     },
@@ -385,10 +385,11 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
         'annotates an existing error': function(t) {
             var err = new Error('test-error2');
             var fields = { code: 'CODE_TWO', a: 123.5 }
-            var err2 = utils.makeError(Object.assign({ err: err }, fields));
+            var err2 = utils.makeError(_assign({ err: err }, fields));
             t.equal(err2, err);
             t.contains(err2, fields);
             t.done();
+            function _assign(target, src) { for (var k in src) target[k] = src[k]; return target }
         }
     },
 
