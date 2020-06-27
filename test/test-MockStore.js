@@ -168,7 +168,7 @@ module.exports = {
     },
 
     'releaseJobs': {
-        'requeues retry jobs': function(t) {
+        'requeues jobs with dt depending on how released': function(t) {
             var sysid = this.sysid;
             var store = this.uut;
             var runningJobs;
@@ -192,7 +192,7 @@ module.exports = {
                     })
                 },
                 function(next) {
-                    store.releaseJobs(['j1', 'j3'], sysid, 'archive', function(err) {
+                    store.releaseJobs(['j1'], sysid, 'archive', function(err) {
                         store.getWaitingJobtypes(function(err, types) {
                             t.deepEqual(types, []);
                             next();
@@ -200,13 +200,23 @@ module.exports = {
                     })
                 },
                 function(next) {
-                    store.releaseJobs([runningJobs[1].id], sysid, 'retry', function(err) {
-                        var now = Date.now();
-                        t.stubOnce(Date, 'now', function() { return now + 600000 });
-                        store.getWaitingJobtypes(function(err, types) {
-                            t.deepEqual(types, ['t1']);
-                            next()
-                        })
+                    store.releaseJobs([runningJobs[1].id], sysid, 'retry', next);
+                },
+                function(next) {
+                    store.releaseJobs([runningJobs[2].id], sysid, 'unget', next);
+                },
+                function(next) {
+                    store.getWaitingJobcounts(function(err, counts) {
+                        t.equal(counts.t1, 1);
+                        next(err);
+                    })
+                },
+                function(next) {
+                    var now = Date.now();
+                    t.stubOnce(Date, 'now', function() { return now + 600000 });
+                    store.getWaitingJobcounts(function(err, counts) {
+                        t.equal(counts.t1, 2);
+                        next()
                     })
                 },
             ],
