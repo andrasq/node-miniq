@@ -26,17 +26,17 @@ module.exports = {
 
     'getRunningCounts': {
         'returns the count': function(t) {
-            this.cut.startedJobs('type-a', 7);
-            this.cut.startedJobs('type-a', 5);
-            this.cut.startedJobs('type-b', 3);
-            this.cut.doneJobs('type-a', 2);
+            this.cut.jobsStarted('type-a', 7);
+            this.cut.jobsStarted('type-a', 5);
+            this.cut.jobsStarted('type-b', 3);
+            this.cut.jobsStopped('type-a', 2);
 
             t.equal(this.cut.getRunningCounts('type-a'), 10);
             t.equal(this.cut.getRunningCounts('type-b'), 3);
             t.deepEqual(this.cut.getRunningCounts(), {'type-a': 10, 'type-b': 3});
 
-            this.cut.doneJobs('type-a', 9);
-            this.cut.doneJobs('type-b', 4);
+            this.cut.jobsStopped('type-a', 9);
+            this.cut.jobsStopped('type-b', 4);
             t.deepEqual(this.cut.getRunningCounts(), {'type-a': 1});
 
             t.done();
