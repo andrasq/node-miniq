@@ -210,6 +210,15 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
             utils.repeatUntil(function(done) { done(null, ++ncalls === 100000) }, t.done);
         },
 
+        'passes the loop count index': function(t) {
+            var args = [];
+            utils.repeatUntil(function(done, i) { args.push(i); done(null, args.length >= 3) }, function(err) {
+                t.ifError(err);
+                t.deepEqual(args, [0, 1, 2]);
+                t.done();
+            })
+        },
+
         'returns errors': function(t) {
             var ncalls = 0, err = 'mock error';
             utils.repeatUntil(function(done) { ++ncalls === 3 ? done(err) : done() }, function(err2) {
@@ -389,7 +398,6 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
             t.equal(err2, err);
             t.contains(err2, fields);
             t.done();
-            function _assign(target, src) { for (var k in src) target[k] = src[k]; return target }
         }
     },
 
@@ -411,3 +419,5 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
         },
     },
 }
+
+function _assign(target, src) { for (var k in src) target[k] = src[k]; return target }
