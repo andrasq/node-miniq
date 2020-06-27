@@ -418,6 +418,14 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
             t.done();
         },
     },
+
+    'toStruct': {
+        'returns the struct': function(t) {
+            var x = {};
+            t.equal(utils.toStruct(x), x);
+            t.done();
+        },
+    },
 }
 
 function _assign(target, src) { for (var k in src) target[k] = src[k]; return target }
