@@ -137,6 +137,24 @@ module.exports = {
             }
             t.done();
         },
+
+        'can return date': function(t) {
+            var spy = t.spyOnce(utils, 'getNewerTimestamp');
+            var dt = utils.getDate();
+            t.ok(dt instanceof Date);
+            t.ok(spy.called);
+
+            var now = new Date();
+            var dt = utils.getDate(now.getTime());
+            t.notEqual(dt, now);
+            t.equal(dt.getTime(), now.getTime());
+
+            var dt = utils.getDate(now);
+            t.notEqual(dt, now);
+            t.equal(dt.getTime(), now.getTime());
+
+            t.done();
+        },
     },
 
     'getIds': {
@@ -416,6 +434,43 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
                 function() { utils.abstract('invalid', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10') },
                 /too many arguments/);
             t.done();
+        },
+    },
+
+    'filterUpdate': {
+        'returns selected items': function(t) {
+            var items = [1, 2, 3, 4, 5];
+            var found0 = utils.filterUpdate(items, function(x) { return x % 2 }, null, null, function(err, found) {
+                t.equal(found, found0);
+                t.deepEqual(found, [1, 3, 5]);
+                t.done();
+            })
+        },
+
+        'updates item properties': function(t) {
+            var items = [{a:1}, {a:2}, {a:3}];
+            utils.filterUpdate(items,
+                function(x) { return x.a % 2 },
+                { b: 1, c: function(obj) { return obj.a + 10} },
+                null,
+                function(err, found) {
+                    t.deepEqual(found, [{a:1, b:1, c:11}, {a:3, b:1, c:13}]);
+                    t.deepEqual(items, [{a:1, b:1, c:11}, {a:2}, {a:3, b:1, c:13}]);
+                    t.done();
+                }
+            )
+        },
+
+        'appends to provided array and removes from items': function(t) {
+            var found = [];
+            var items = [1, 2, 3, 4, 5];
+            var ret = utils.filterUpdate(items, function(x) { return x % 2 }, null, {found: found, remove: true}, function(err, res) {
+                t.equal(res, found);
+                t.equal(ret, found);
+                t.deepEqual(res, [1, 3, 5]);
+                t.deepEqual(items, [2, 4]);
+                t.done();
+            });
         },
     },
 
