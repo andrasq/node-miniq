@@ -201,6 +201,8 @@ module.exports = {
                 },
                 function(next) {
                     store.releaseJobs([runningJobs[1].id], sysid, 'retry', function(err) {
+                        var now = Date.now();
+                        t.stubOnce(Date, 'now', function() { return now + 600000 });
                         store.getWaitingJobtypes(function(err, types) {
                             t.deepEqual(types, ['t1']);
                             next()
