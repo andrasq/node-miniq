@@ -156,7 +156,7 @@ module.exports = {
                     next();
                 },
                 function(next) { store.renewLocks([runningJobs[0].id], sysid, 7200000, next) },
-                function(next) { store.getLockedJobs(sysid, 100, next) },
+                function(next) { store.getLockedJobs(null, sysid, 100, next) },
                 function(next, jobs) {
                     t.equal(jobs.length, 1);
                     t.ok(+jobs[0].dt >= +nowDt + 7200000);
@@ -275,7 +275,7 @@ module.exports = {
                     t.stubOnce(Date, 'now', function() { return doneDt });
                     store.releaseJobs(['j1', 'j3'], sysid, 'archive', next);
                 },
-                function(next) { store.getLockedJobs('__done', 1, next) },
+                function(next) { store.getLockedJobs(null, '__done', 1, next) },
                 function(next, jobs) {
                     t.equal(jobs.length, 1);
                     var cutoffDt = new Date(+Date.now() - 3600000);

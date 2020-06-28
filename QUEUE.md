@@ -148,7 +148,7 @@ Keeps per-store global state.  Could be combined with Results, see below.
 
 - sysid store (token store):
   Could implement in job store as type: 'queue.sysid', id: <sysid>, lock: <sysid>)
-  - *getSysid( callback )*
+  - *reserveSysid( tempid, callback)*
   - *renewSysid( sysid, callback )*
   - *releaseSysid( sysid, callback )*
 - jobs `running`/`done`/`waiting` (by type?) (parallel calls to scheduler: jobsStarted/jobsDone
