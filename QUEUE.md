@@ -134,7 +134,7 @@ job data and payloads until job completion or timeout.
   can be run at the time of the call.  The scheduler uses these jobtypes to choose which type to
   run next.  The second array element, if provided, is a hash mapping jobtype to count of
   waiting jobs.
-- *getJobs( jobtype, limit )* return the jobs and make them ineligible for selection.
+- *getWaitingJobs( jobtype, limit )* return the jobs and make them ineligible for selection.
   The store retains the jobs in case the runner does not finish of them, in which case
   they time out and are made eligible to run again.
 - *releaseJobs( ids, how )* dispose of the running jobs.  How can be `retry`
