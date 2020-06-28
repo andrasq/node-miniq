@@ -260,7 +260,36 @@ module.exports = {
 
     'expireJobs': {
         'requires lock or jobtype': function(t) {
-            t.skip();
+            var store = this.uut;
+            t.throws(function() { store.expireJobs() }, /jobtype or lock required/);
+            t.done();
+        },
+
+        'accepts either absolute or relative cutoff date': function(t) {
+            var sysid = this.sysid;
+            var store = this.uut;
+            var insertDt = new Date(Date.now() - 100);
+            var doneDt = new Date(Date.now() + 1000 * 365.25 * 24 * 3600000);
+            utils.iterateSteps([
+                function(next) { store.addJobs([{ id: 'j1', type: 't1', dt: insertDt, lock: sysid, data: {} }], next) },
+                function(next) { store.addJobs([{ id: 'j2', type: 't2', dt: insertDt, lock: sysid, data: {} }], next) },
+                function(next) { store.addJobs([{ id: 'j3', type: 't1', dt: doneDt, lock: '__done', data: {} }], next) },
+
+                function(next) { store.getLockedJobs('t1', sysid, 100, next) },
+                function(next, jobs) { t.equal(jobs.length, 1); t.equal(jobs[0].id, 'j1'); next() },
+                function(next) { store.expireJobs('t1', sysid, new Date(), 100, next) },
+                function(next) { store.getLockedJobs('t1', sysid, 100, next) },
+                function(next, jobs) { t.equal(jobs.length, 0); next() },
+
+                function(next) { store.getLockedJobs('t1', '__done', 100, next) },
+                function(next, jobs) { t.equal(jobs.length, 1); t.equal(jobs[0].id, 'j3'); next() },
+
+                function(next) { store.getLockedJobs('t2', sysid, 100, next) },
+                function(next, jobs) { t.equal(jobs.length, 1); t.equal(jobs[0].id, 'j2'); next() },
+                function(next) { store.expireJobs('t2', sysid, 2000, 100, next) },
+                function(next) { store.getLockedJobs('t2', sysid, 100, next) },
+                function(next, jobs) { t.equal(jobs.length, 0); next() },
+            ], t.done);
         },
 
         'removes and returns archived jobs': function(t) {
