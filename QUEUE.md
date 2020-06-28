@@ -102,7 +102,10 @@ Primary Components
 
 Orchestrates the activity.
 
-- */add* insert jobs into the queue, return the created job ids
+- */job/add* insert jobs into the queue, return the created job ids
+- */handler/add/{:type}/add?method=* inserts a handler for the named job type
+- */handler/del/{:type}/delete* deletes the handler for job type
+- */handler/get/{:type}* returns the currently defined handler for the job type
 
 ### Journal
 
