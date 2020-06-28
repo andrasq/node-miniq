@@ -1,5 +1,6 @@
 'use strict';
 
+var fs = require('fs');
 var utils = require('../lib/utils');
 
 module.exports = {
@@ -14,9 +15,9 @@ module.exports = {
         },
     },
 
-    'makeLog': {
+    'makeLogger': {
         'returns logger': function(t) {
-            var uut = utils.makeLog('test-log');
+            var uut = utils.makeLogger('test-log');
             t.equal(typeof uut.trace, 'function');
             t.equal(typeof uut.debug, 'function');
             t.equal(typeof uut.info, 'function');
@@ -25,19 +26,57 @@ module.exports = {
             t.done();
         },
 
-        'logs objects to provided console': function(t) {
-            var output = [];
-            var con = { log: function(line) { output.push(line) } };
-            var uut = utils.makeLog('test-log', con);
-            uut.info('test1');
-            uut.error('test2');
-            t.equal(output.length, 2);
-            t.equal(typeof output[0], 'object');
-            t.ok(output[0].time);
-            t.equal(output[0].id, 'test-log');
-            t.equal(output[0].message, 'test1');
-            t.equal(output[1].message, 'test2');
+        'writes to stdout': function(t) {
+            var now = utils.getNewerTimestamp(0);
+            var log = utils.makeLogger('test-log');
+            var spy = t.stubOnce(process.stdout, 'write');
+            var good = {a:123}, bad = {}; bad.a = bad;
+            log.error('mock error', good, bad);
+
+            t.ok(spy.called);
+            t.equal(spy.args[0].length, 1);
+            var json = JSON.parse(spy.args[0][0]);
+            t.contains(json, {qid: 'test-log', message: ['mock error', {a: 123}, '[Circular]']});
+            t.ok(new Date(json.time) >= new Date(now));
+            t.contains(spy.args[0][0], '{"a":123}');
+            t.contains(spy.args[0][0], '"[Circular]"');
             t.done();
+        },
+
+        'writes to provided stream': function(t) {
+            var output = [];
+            var stream = { write: function(line) { output.push(line) } };
+            var log = utils.makeLogger('test-log', stream);
+            log.info('test1');
+            log.error('test2');
+            log.info('test3a', 'test3b');
+            t.equal(output.length, 3);
+            t.equal(typeof output[0], 'string');
+            t.contains(output[0], '"time":"');
+            t.contains(output[0], '"type":"INFO"');
+            t.contains(output[0], '"qid":"test-log"');
+            t.contains(output[0], '"message":"test1"');
+            t.contains(output[1], '"type":"ERROR"');
+            t.contains(output[1], '"test2"');
+            t.contains(output[2], '"test3a","test3b"');
+            t.done();
+        },
+
+        'is fast': function(t) {
+            var tempfile = '/tmp/test' + process.pid + '.tmp';
+            var stream = fs.createWriteStream(tempfile, {flags: 'w+', highWaterMark: 400000});
+            var log = utils.makeLogger('testlog', stream);
+            var t1 = Date.now();
+            var arg1 = { a: 'xxxxxxxxxxxxxxxxxxxxxxxxx', b: 'xxxxxxxxxxxxxxxxxxxxxxxxx', c: 'xxxxxxxxxxxxxxxxxxxxxxxxx', d: 'xxxxxxxxxxxxxxxxxxxxxxxxx' };
+            // var arg2 = { c: 'xxxxxxxxxxxxxxxxxxxxxxxxx', d: 'xxxxxxxxxxxxxxxxxxxxxxxxx' };
+            for (var i = 0; i < 10000; i++) { log.info(arg1); }
+            stream.write('\n', function(err) {
+                var t2 = Date.now();
+                fs.unlinkSync(tempfile);
+                console.log("AR: wrote 10k log lines in %d ms", t2 - t1);
+                // ~275k / sec: 100k 200B 1x4-item json objects in .36 sec, 10k in .046 (2x2-item in .42/.057 sec)
+                t.done();
+            })
         },
     },
 
