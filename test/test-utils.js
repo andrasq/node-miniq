@@ -34,7 +34,7 @@ module.exports = {
             t.equal(output.length, 2);
             t.equal(typeof output[0], 'object');
             t.ok(output[0].time);
-            t.equal(output[0].type, 'test-log');
+            t.equal(output[0].id, 'test-log');
             t.equal(output[0].message, 'test1');
             t.equal(output[1].message, 'test2');
             t.done();
