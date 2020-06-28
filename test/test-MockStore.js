@@ -259,6 +259,10 @@ module.exports = {
     },
 
     'expireJobs': {
+        'requires lock or jobtype': function(t) {
+            t.skip();
+        },
+
         'removes and returns archived jobs': function(t) {
             var sysid = this.sysid;
             var store = this.uut;
@@ -276,7 +280,7 @@ module.exports = {
                     t.equal(jobs.length, 1);
                     var cutoffDt = new Date(+Date.now() - 3600000);
                     cutoffDt.setFullYear(cutoffDt.getFullYear() + 1000);
-                    store.expireJobs('__done', cutoffDt, 100, next);
+                    store.expireJobs(null, '__done', cutoffDt, 100, next);
                 },
                 function(next, removed) {
 console.log("AR: removed jobs", removed);
