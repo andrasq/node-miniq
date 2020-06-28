@@ -130,9 +130,7 @@ module.exports = {
 
                 // can be called multiple times
                 uut.rsync(tok);
-                uut.rsync(tok);
-
-                t.done();
+                uut.rsync(tok, t.done);
             })
         },
     },
