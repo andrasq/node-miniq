@@ -524,7 +524,16 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
             t.done();
         },
 
-        'does not alter properties of merged objects': function(t) {
+        'does not merge in non-objects': function(t) {
+            var a = {a: 1};
+            var expect = {a: 1};
+            t.deepEqual(utils.merge2(a, null), expect);
+            t.deepEqual(utils.merge2(a, false), expect);
+            t.deepEqual(utils.merge2(a, 123), expect);
+            t.done();
+        },
+
+        'does not alter properties of merged-in objects': function(t) {
             var a = {a: 1, b: 1};
             var b = {b: {b: 2}};
             var c = {b: {c: 3}};
@@ -538,14 +547,22 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
     },
 
     'getConfig': {
-        'reads ../config': function(t) {
-            var spy = t.spy(global, 'require');
+        'returns null if not configured': function(t) {
+            t.strictEqual(utils.getConfig('../nonesuch'), null);
+            t.done();
+        },
+
+        'reads ../config and layers in default, development and local': function(t) {
+            var spy = t.stub(global, 'require', function require(path) { return /development.json$/.test(path) && {} }).configure('saveLimit', 20);
             utils.getConfig();
             spy.restore();
-            t.equal(spy.callCount, 3);
-            t.contains(spy.args[0][0], '/lib/../config/development');
-            t.contains(spy.args[1][0], '/lib/../config/development.js');
-            t.contains(spy.args[2][0], '/lib/../config/development.json');
+            t.equal(spy.callCount, 6);
+            t.contains(spy.args[0][0], '/config/default');
+            t.contains(spy.args[1][0], '/config/default.json');
+            t.contains(spy.args[2][0], '/config/development');
+            t.contains(spy.args[3][0], '/config/development.json');
+            t.contains(spy.args[4][0], '/config/local');
+            t.contains(spy.args[5][0], '/config/local.json');
             t.done();
         },
 
@@ -553,27 +570,38 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
             var spy = t.spy(global, 'require');
             utils.getConfig('../foo/bar/myConfig');
             spy.restore();
-            t.contains(spy.args[0][0], '../foo/bar/myConfig/development');
+            t.contains(spy.args[3][0], '../foo/bar/myConfig/development');
+            t.done();
+        },
+
+        'looks by default in $PWD/config': function(t) {
+            var localConfig = process.cwd() + '/config/';
+            var spy = t.stub(global, 'require').configure('saveLimit', 10);
+            utils.getConfig();
+            spy.restore();
+            t.contains(spy.args[0][0], localConfig);
             t.done();
         },
 
         'loads the config for NODE_ENV': function(t) {
             var env = process.env.NODE_ENV;
             process.env.NODE_ENV = 'mytest';
-            var spy = t.spyOnce(global, 'require');
+            utils.getConfig('../foo/bar/myConfig');
+            var spy = t.spy(global, 'require');
             utils.getConfig();
+            spy.restore();
             // process.env is magic, it stores the stringified value so must delete to restore undefined
             env === undefined ? delete process.env.NODE_ENV : process.env.NODE_ENV = env;
-            t.contains(spy.args[0][0], '/lib/../config/mytest');
+            t.contains(spy.args[3][0], '/config/mytest');
             t.done();
         },
 
         'uses provided loaders': function(t) {
-            var stub = t.stub().throws(new Error('not found'));
-            utils.getConfig({ yml: stub });
-            t.equal(stub.callCount, 2);
-            t.contains(stub.args[0][0], '/lib/../config/development');
-            t.contains(stub.args[1][0], '/lib/../config/development.yml');
+            var spy = t.stub().throws(new Error('not found'));
+            utils.getConfig({ loaders: { yml: spy } });
+            t.equal(spy.callCount, 6);
+            t.contains(spy.args[0][0], '/config/default');
+            t.contains(spy.args[1][0], '/config/default.yml');
             t.done();
         },
     },
