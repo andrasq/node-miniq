@@ -513,6 +513,71 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
         },
     },
 
+    'merge2': {
+        'merges objects': function(t) {
+            var a = {a: 1, c: {a: 11}};
+            var b = {b: 2, c: {b: 22}};
+            var mm = {};
+            utils.merge2(mm, a);
+            utils.merge2(mm, b);
+            t.deepEqual(mm, {a: 1, b: 2, c: {a: 11, b: 22}});
+            t.done();
+        },
+
+        'does not alter properties of merged objects': function(t) {
+            var a = {a: 1, b: 1};
+            var b = {b: {b: 2}};
+            var c = {b: {c: 3}};
+            var m = utils.merge2(utils.merge2(utils.merge2({}, a), b), c);
+            t.deepEqual(m, {a: 1, b: {b: 2, c: 3}});
+            t.deepEqual(a, {a: 1, b: 1});
+            t.deepEqual(b, {b: {b: 2}});
+            t.deepEqual(c, {b: {c: 3}});
+            t.done();
+        },
+    },
+
+    'getConfig': {
+        'reads ../config': function(t) {
+            var spy = t.spy(global, 'require');
+            utils.getConfig();
+            spy.restore();
+            t.equal(spy.callCount, 3);
+            t.contains(spy.args[0][0], '/lib/../config/development');
+            t.contains(spy.args[1][0], '/lib/../config/development.js');
+            t.contains(spy.args[2][0], '/lib/../config/development.json');
+            t.done();
+        },
+
+        'reads from the specified config directory': function(t) {
+            var spy = t.spy(global, 'require');
+            utils.getConfig('../foo/bar/myConfig');
+            spy.restore();
+            t.contains(spy.args[0][0], '../foo/bar/myConfig/development');
+            t.done();
+        },
+
+        'loads the config for NODE_ENV': function(t) {
+            var env = process.env.NODE_ENV;
+            process.env.NODE_ENV = 'mytest';
+            var spy = t.spyOnce(global, 'require');
+            utils.getConfig();
+            // process.env is magic, it stores the stringified value so must delete to restore undefined
+            env === undefined ? delete process.env.NODE_ENV : process.env.NODE_ENV = env;
+            t.contains(spy.args[0][0], '/lib/../config/mytest');
+            t.done();
+        },
+
+        'uses provided loaders': function(t) {
+            var stub = t.stub().throws(new Error('not found'));
+            utils.getConfig({ yml: stub });
+            t.equal(stub.callCount, 2);
+            t.contains(stub.args[0][0], '/lib/../config/development');
+            t.contains(stub.args[1][0], '/lib/../config/development.yml');
+            t.done();
+        },
+    },
+
     'toStruct': {
         'returns the struct': function(t) {
             var x = {};
