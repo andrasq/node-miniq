@@ -4,12 +4,13 @@
   "version": "0.0.0",
   "main": "lib/app",
   "keywords": ["queue", "job", "serverless"],
-  "files": ["lib", "README.md", "QUEUE.md"],
+  "files": ["lib", "README.md", "QUEUE.md", "LICENSE"],
 
   "author": "andrasq@github.com",
   "license": "Apache-2.0",
   "engines": { "node": ">= 0.10" },
   "readme": "see README.md in the repo",
+  "repository": { "type": "git", "url": "git://github.com/andrasq/node-miniq" },
 
   "dependencies": {
     "microrest": "0.6.2"
