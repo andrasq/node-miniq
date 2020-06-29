@@ -553,7 +553,7 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
         },
 
         'reads ../config and layers in default, development and local': function(t) {
-            var spy = t.stub(global, 'require', function require(path) { return /development.json$/.test(path) && {} }).configure('saveLimit', 20);
+            var spy = t.stub(utils, 'require', function require(path) { return /development.json$/.test(path) && {} }).configure('saveLimit', 20);
             utils.getConfig();
             spy.restore();
             t.equal(spy.callCount, 6);
@@ -567,7 +567,7 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
         },
 
         'reads from the specified config directory': function(t) {
-            var spy = t.spy(global, 'require');
+            var spy = t.spy(utils, 'require');
             utils.getConfig('../foo/bar/myConfig');
             spy.restore();
             t.contains(spy.args[3][0], '../foo/bar/myConfig/development');
@@ -576,7 +576,7 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
 
         'looks by default in $PWD/config': function(t) {
             var localConfig = process.cwd() + '/config/';
-            var spy = t.stub(global, 'require').configure('saveLimit', 10);
+            var spy = t.stub(utils, 'require').configure('saveLimit', 10);
             utils.getConfig();
             spy.restore();
             t.contains(spy.args[0][0], localConfig);
@@ -586,21 +586,21 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
         'loads the config for NODE_ENV': function(t) {
             var env = process.env.NODE_ENV;
             process.env.NODE_ENV = 'mytest';
-            var spy = t.spy(global, 'require');
+            var spy = t.spy(utils, 'require');
             utils.getConfig();
             spy.restore();
             // process.env is magic, it stores the stringified value so must delete to restore undefined
             env === undefined ? delete process.env.NODE_ENV : process.env.NODE_ENV = env;
-            t.contains(spy.args[3][0], '/config/mytest');
+            t.contains(spy.args[2][0], '/config/mytest');
             t.done();
         },
 
         'uses provided loaders': function(t) {
-            var spy = t.stub().throws(new Error('not found'));
-            utils.getConfig({ loaders: { yml: spy } });
-            t.equal(spy.callCount, 6);
-            t.contains(spy.args[0][0], '/config/default');
-            t.contains(spy.args[1][0], '/config/default.yml');
+            var stub = t.stub().throws(new Error('not found'));
+            utils.getConfig({ dir: '/nonesuch/config', loaders: { yml: stub } });
+            t.equal(stub.callCount, 6);
+            t.contains(stub.args[0][0], '/config/default');
+            t.contains(stub.args[1][0], '/config/default.yml');
             t.done();
         },
     },
