@@ -586,7 +586,6 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
         'loads the config for NODE_ENV': function(t) {
             var env = process.env.NODE_ENV;
             process.env.NODE_ENV = 'mytest';
-            utils.getConfig('../foo/bar/myConfig');
             var spy = t.spy(global, 'require');
             utils.getConfig();
             spy.restore();
