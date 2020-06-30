@@ -459,7 +459,17 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
             t.equal(err2, err);
             t.contains(err2, fields);
             t.done();
-        }
+        },
+
+        'accepts an error code': function(t) {
+            var err = utils.makeError('ETESTCODE');
+            t.strictEqual(err.message, 'ETESTCODE');
+            t.strictEqual(err.code, 'ETESTCODE');
+            var err = utils.makeError(1234);
+            t.strictEqual(err.message, '1234');
+            t.strictEqual(err.code, 1234);
+            t.done();
+        },
     },
 
     'abstract': {
