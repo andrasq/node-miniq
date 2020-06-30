@@ -3,5 +3,6 @@ module.exports = {
     default: true,
     server: {
         workerCount: 2,
+        port: 3001,
     },
 };
