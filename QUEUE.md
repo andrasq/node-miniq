@@ -102,10 +102,10 @@ Primary Components
 
 Orchestrates the activity.
 
-- */job/add* insert jobs into the queue, return the created job ids
-- */handler/add/{:type}/add?method=* inserts a handler for the named job type
-- */handler/del/{:type}/delete* deletes the handler for job type
-- */handler/get/{:type}* returns the currently defined handler for the job type
+- */{:client}/job/{:type}/add* insert jobs into the queue, return the created job ids
+- */{:client}/handler/add/{:type}/add?method=* inserts a handler for the named job type
+- */{:client}/handler/del/{:type}/delete* deletes the handler for job type
+- */{:client}/handler/get/{:type}* returns the currently defined handler for the job type
 
 ### Journal
 
@@ -121,6 +121,16 @@ Checkpoints newly added job payloads for lower latencies and more efficient bulk
 - *read( token, callback )* fetch the reserved lines
 - *rsync( token )* tell the journal the read was persisted in the store ie that the
   logical read point can be advanced past the read lines.
+
+Data format:
+
+    #:Batch date=2020-06-30T01:17:17.123Z,bytes=12345,jobtype=client-job-type\n
+    <body as received in the post request>
+    #:EndBatch\n
+    <id>|<jobtype>|<payload>
+    ...
+
+Disallow commas in jobtypes?
 
 ### Store
 
