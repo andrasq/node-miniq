@@ -605,6 +605,41 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
         },
     },
 
+    'setInterval': {
+        'returns timer that can be stopped': function(t) {
+            var ncalls = 0;
+            var timer = utils.setInterval(function(){ ncalls += 1; if (ncalls == 2) timer.unref() }, 3);
+            setTimeout(function() {
+                t.equal(ncalls, 4);
+                timer.stop();
+                setTimeout(function() {
+                    t.equal(ncalls, 4);
+                    t.done();
+                }, 10);
+            }, 14);
+        },
+
+        'can ref and unref': function(t) {
+            var timer = utils.setInterval(function(){}, 100);
+            timer.unref();
+            timer.unref();
+            timer.ref();
+            timer.ref();
+            t.done();
+        },
+
+        'ref and unref operate on the node timer': function(t) {
+            var timer = utils.setInterval(function(){}, 100);
+            var spyUnref = t.spyOnce(timer.timer, 'unref');
+            var spyRef = t.spyOnce(timer.timer, 'ref');
+            timer.unref();
+            timer.ref();
+            t.ok(spyUnref.called);
+            t.ok(spyRef.called);
+            t.done();
+        },
+    },
+
     'toStruct': {
         'returns the struct': function(t) {
             var x = {};
