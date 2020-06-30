@@ -363,13 +363,17 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
             })
             var uut = this.uut;
             var now = Date.now();
-            uut.run(now, function(err) {
+            uut.run(now + 5, function(err) {
+                t.ifError(err);
                 t.equal(ncalls, 0);
                 uut.run(now + 15, function(err) {
+                    t.ifError(err);
                     t.equal(ncalls, 1);
                     uut.run(now + 15, function(err) {
+                        t.ifError(err);
                         t.equal(ncalls, 1);
                         uut.run(now + 25, function(err) {
+                            t.ifError(err);
                             t.equal(ncalls, 2);
                             t.done();
                         })
