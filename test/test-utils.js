@@ -62,6 +62,18 @@ module.exports = {
             t.done();
         },
 
+        'does not log if beneath loglevel': function(t) {
+            // loglevel defaults to 'info'
+            var log = utils.makeLogger('debugLog');
+            var spy = t.stub(process.stdout, 'write');
+            log.debug('will not show');
+            t.equal(spy.callCount, 0);
+            log.warn('will show');
+            spy.restore();
+            t.equal(spy.callCount, 1);
+            t.done();
+        },
+
         'is fast': function(t) {
             var tempfile = '/tmp/test' + process.pid + '.tmp';
             var stream = fs.createWriteStream(tempfile, {flags: 'w+', highWaterMark: 400000});
