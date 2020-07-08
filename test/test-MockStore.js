@@ -1,6 +1,8 @@
 'use strict';
 
 var utils = require('../lib/utils');
+var testUtils = require('../lib/testUtils');
+var Store = require('../lib/Store');
 var MockStore = require('../lib/MockStore');
 
 module.exports = {
@@ -21,6 +23,11 @@ module.exports = {
             t.equal(typeof store.expireLocks, 'function');
             t.equal(typeof store.expireJobs, 'function');
             t.equal(typeof store.getLockedJobs, 'function');
+            t.done();
+        },
+
+        'implements Store': function(t) {
+            t.ok(testUtils.implements(new MockStore(), Store));
             t.done();
         },
     },
