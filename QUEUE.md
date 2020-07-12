@@ -155,6 +155,27 @@ job data and payloads until job completion or timeout.
   (meaning delete or archive.  Archival marks the jobs as ineligible to run, but are
   retained for debugging or analytics.  Old archived jobs are periodically purged).
 
+Notes:
+- implementations may need to split out bulk data from jobs table, to work around e.g. beanstalkd
+  or mongodb max object size limitations.
+
+## Handler Store
+
+- *id* unique handler id, for cleaning up old versions
+- *type* jobtype (tenant+funcName tuple)
+- *dt*   create date, used to find newest version
+- *lock* job owner (?? tenant id? user id?)
+- *data* handler function
+
+Data is a json object of strings:
+- *eid* compatible engine id, for reusing a runner context for multiple jobtypes
+- *lang* language (node, http, php, etc)
+- *before* runtime env bootstrap script, in same lang as body, prorated against tasks run
+  (base env cost is not? or is too, since must fork?).  Total task limit is configured.  Optional.
+- *beforeEach* per-batch init script, prorated against batch jobs.  Optional.
+- *body* function body (or url that runs the script)
+- *afterEach* per-batch cleanup script, prorated against batch jobs.  Optional.
+
 ### State
 
 Keeps per-store global state.  Could be combined with Results, see below.
@@ -190,4 +211,11 @@ Scoreboard of completion stauts and results.
 - option to automatically chain to a follow-on job that is queued with the completed job's returned results
 - Result is written to stdout as a serialized journal entry: timestamp|type|payload
   (writing the output is wrappered to not allow editing of jobtypes)
-- exitcode is a numeric status : retry=1xx, ok=2xx, next=3xx, failed=4xx, error=5xx
+- `code` is the reason the job stopped, `retry`, `ok`, `failed`, `error`
+- `exitcode` is a numeric status : retry=1xx, ok=2xx, failed=4xx, error=5xx
+
+### Runner
+
+- *getRunningJobs* return the currently running jobs, to renew locks on
+- *getStoppedJobs* return the jobs that are no longer running, annotated with `code` and `exitcode`
+
