@@ -69,8 +69,9 @@ module.exports = {
             log.debug('will not show');
             t.equal(spy.callCount, 0);
             log.warn('will show');
+            log.log('will also show');
             spy.restore();
-            t.equal(spy.callCount, 1);
+            t.equal(spy.callCount, 2);
             t.done();
         },
 
