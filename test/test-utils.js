@@ -36,7 +36,7 @@ module.exports = {
             t.ok(spy.called);
             t.equal(spy.args[0].length, 1);
             var json = JSON.parse(spy.args[0][0]);
-            t.contains(json, {qid: 'test-log', message: ['mock error', {a: 123}, '[Circular]']});
+            t.contains(json, {id: 'test-log', message: ['mock error', {a: 123}, '[Circular]']});
             t.ok(new Date(json.time) >= new Date(now));
             t.contains(spy.args[0][0], '{"a":123}');
             t.contains(spy.args[0][0], '"[Circular]"');
@@ -54,8 +54,8 @@ module.exports = {
             t.equal(typeof output[0], 'string');
             t.contains(output[0], '"time":"');
             t.contains(output[0], '"type":"INFO"');
-            t.contains(output[0], '"qid":"test-log"');
-            t.contains(output[0], '"message":"test1"');
+            t.contains(output[0], '"id":"test-log"');
+            t.contains(output[0], '"message":["test1"]');
             t.contains(output[1], '"type":"ERROR"');
             t.contains(output[1], '"test2"');
             t.contains(output[2], '"test3a","test3b"');
