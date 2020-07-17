@@ -102,11 +102,19 @@ module.exports = {
     },
 
     'groupByField': {
-        'return hash of arrays': function(t) {
+        'returns hash of arrays': function(t) {
             var items = [{id:1, a:1}, {id:2, a:1}, {id:3, a:3}, {id:3, a:1}];
-            var hash = utils.groupByField(items, 'a');
             t.deepEqual(utils.groupByField(items, 'a'), {'1': [{id:1, a:1}, {id:2, a:1}, {id:3, a:1}], '3': [{id:3, a:3}]});
             t.deepEqual(utils.groupByField(items, 'id'), {'1': [{id:1, a:1}], '2': [{id:2, a:1}], '3': [{id:3, a:3}, {id:3, a:1}]});
+            t.done();
+        },
+    },
+
+    'countByField': {
+        'returns hash of counts': function(t) {
+            var items = [{id:1, a:1}, {id:2, a:1}, {id:3, a:3}, {id:3, a:1}];
+            t.deepEqual(utils.countByField(items, 'a'), {'1': 3, 3: 1});
+            t.deepEqual(utils.countByField(items, 'id'), {'1': 1, '2': 1, '3': 2});
             t.done();
         },
     },
@@ -637,6 +645,7 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
             var ncalls = 0;
             var timer = utils.setInterval(function(){ ncalls += 1; if (ncalls == 2) timer.unref() }, 3);
             setTimeout(function() {
+// FIXME: node-v0.10.42 gets 5 calls (and 8 calls below, so is not stopping)
                 t.equal(ncalls, 4);
                 timer.stop();
                 setTimeout(function() {

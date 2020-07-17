@@ -15,7 +15,6 @@ function makeQueue( ) {
         new JournalArray(),
         new SchedulerRandom(),
         new MockStore(),
-        new MockStore(),
         new Runner(),
         utils.makeLogger(sysid)
     );
@@ -31,6 +30,13 @@ module.exports = {
         'has expected methods': function(t) {
             var methods = ['run', 'addJobs'];
             for (var i = 0; i < methods.length; i++) t.equal(typeof this.uut[methods[i]], 'function');
+            t.done();
+        },
+
+        'sets a default sysid': function(t) {
+            var uut = new Queue(null, new JournalArray(), new SchedulerRandom(), new MockStore(), new Runner(), utils.makeLogger(''));
+            t.equal(typeof uut.sysid, 'string');
+            t.ok(uut.sysid.length > 0);
             t.done();
         },
     },
@@ -110,6 +116,47 @@ module.exports = {
                 t.ok(spy.called);
                 t.contains(spy.args[0][0][0], '|line1');
                 t.contains(spy.args[0][0][1], '|line2');
+                t.done();
+            })
+        },
+    },
+
+    'run': {
+        'calls handleDoneJobs, runNewJobs, ingestJournal': function(t) {
+            var spy1 = t.stub(this.uut, 'handleDoneJobs').yields(new Error('mock done jobs error'));
+            var spy2 = t.stub(this.uut, 'runNewJobs').yields(new Error('mock new jobs error'));
+            var spy3 = t.stub(this.uut, 'ingestJournal').yields(new Error('mock ingest error'));
+            this.uut.run({ countLimit: 1 }, function(err) {
+                t.ok(spy1.called);
+                t.ok(spy2.called);
+                t.ok(spy3.called);
+                t.done();
+            })
+        },
+
+        'runs cron and housekeeping': function(t) {
+            var spy1 = t.stub(this.uut.cron, 'run').yields(new Error('mock cron error'));
+            var spy2 = t.stub(this.uut, 'housekeeping').yields(new Error('mock houskeeping error'));
+            this.uut.run({ countLimit: 1 }, function(err) {
+                t.ok(spy1.called);
+                t.ok(spy2.called);
+                t.done();
+            })
+        },
+
+        'stops by count': function(t) {
+            var count = 0;
+            t.stub(this.uut, 'ingestJournal', function(cb) { count += 1; cb() });
+            this.uut.run({ countLimit: 7 }, function(err) {
+                t.equal(count, 7);
+                t.done();
+            })
+        },
+
+        'stops by time': function(t) {
+            var now = Date.now();
+            this.uut.run({ timeLimitMs: 7 }, function(err) {
+                t.ok(Date.now() >= now + 7);
                 t.done();
             })
         },
