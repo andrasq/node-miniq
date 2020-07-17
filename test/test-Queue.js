@@ -62,13 +62,13 @@ module.exports = {
         },
 
         'decodes job creation time from the id': function(t) {
-            var id = utils.pad(utils.encode64(123456789), 7) + '-test-01234';
+            var id = utils.pad(utils.encode64(1234567891234), 7) + '-test-01234';
             this.uut.journal.write([id + '|type1|data1']);
             var spy = t.spy(this.uut.store, 'addJobs');
             this.uut.ingestJournal(function(err) {
                 t.ifError(err);
                 t.ok(spy.called);
-                t.contains(spy.args[0][0][0], { dt: new Date(123456789) });
+                t.contains(spy.args[0][0][0], { dt: new Date(1234567891234) });
                 t.done();
             })
         },
