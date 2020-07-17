@@ -9,14 +9,15 @@ var MockStore = require('../lib/MockStore');
 var Runner = require('../lib/Runner');
 
 function makeQueue( ) {
+    var sysid = 'q' + Math.floor(Math.random() * 0x10000).toString(16);
     return new Queue(
-        'q' + Math.floor(Math.random() * 0x10000).toString(16),
+        sysid,
         new JournalArray(),
         new SchedulerRandom(),
         new MockStore(),
         new MockStore(),
         new Runner(),
-        utils.makeLogger('test')
+        utils.makeLogger(sysid)
     );
 }
 
