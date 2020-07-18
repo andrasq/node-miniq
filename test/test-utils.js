@@ -108,6 +108,13 @@ module.exports = {
             t.deepEqual(utils.groupByField(items, 'id'), {'1': [{id:1, a:1}], '2': [{id:2, a:1}], '3': [{id:3, a:3}, {id:3, a:1}]});
             t.done();
         },
+
+        'groups by function': function(t) {
+            var items = [{a:1}, {a:2}, {a:3}];
+            var groups = utils.groupByField(items, function(x) { return x.a % 2 });
+            t.deepEqual(groups, { 0: [{a:2}], 1: [{a:1}, {a:3}] });
+            t.done();
+        },
     },
 
     'countByField': {
@@ -115,6 +122,13 @@ module.exports = {
             var items = [{id:1, a:1}, {id:2, a:1}, {id:3, a:3}, {id:3, a:1}];
             t.deepEqual(utils.countByField(items, 'a'), {'1': 3, 3: 1});
             t.deepEqual(utils.countByField(items, 'id'), {'1': 1, '2': 1, '3': 2});
+            t.done();
+        },
+
+        'counts by function': function(t) {
+            var items = [{a:1}, {a:2}, {a:3}];
+            var counts = utils.countByField(items, function(x) { return x.a % 2 });
+            t.deepEqual(counts, { 0: 1, 1: 2 });
             t.done();
         },
     },
