@@ -99,6 +99,20 @@ module.exports = {
             t.deepEqual(utils.selectField([{a:1}, {b:2}, {a:3}], 'a'), [1, undefined, 3]);
             t.done();
         },
+
+        'returns selected field from properties of an object': function(t) {
+            var obj = { a: {type:1}, b: {type:2}, c: {type:3} };
+            t.deepStrictEqual(utils.selectField(obj, 'type'), [1, 2, 3]);
+            t.done();
+        },
+    },
+
+    'uniq': {
+        'returns distinct strings': function(t) {
+            t.deepStrictEqual(utils.uniq([1, 2, 1, 3]), ['1', '2', '3']);
+            t.deepStrictEqual(utils.uniq(['a', 'a', 'b', 'a']), ['a', 'b']);
+            t.done();
+        },
     },
 
     'groupByField': {
