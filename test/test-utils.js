@@ -581,6 +581,24 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
         },
     },
 
+    'deassign': {
+        'copies out properties': function(t) {
+            t.deepEqual(utils.deassign({}, {a:1, b:2}, {a:true}), {a:1});
+            t.deepEqual(utils.deassign({}, {a:1, b:2}, {a:false}), {});
+            t.deepEqual(utils.deassign({c:3}, {a:1, b:2}, {a:true, b:0}), {c:3, a:1});
+            t.done();
+        },
+    },
+
+    'valuesOf': {
+        'returns own properties in an array': function(t) {
+            function Foo() { this.a = 1; this.b = 2 }
+            Foo.prototype.c = 3;
+            t.deepEqual(utils.valuesOf(new Foo()), [1, 2]);
+            t.done();
+        },
+    },
+
     'getConfig': {
         'returns null if not configured': function(t) {
             t.strictEqual(utils.getConfig('../nonesuch'), null);
