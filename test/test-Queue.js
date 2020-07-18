@@ -134,12 +134,10 @@ module.exports = {
             })
         },
 
-        'runs cron and housekeeping': function(t) {
+        'runs cron': function(t) {
             var spy1 = t.stub(this.uut.cron, 'run').yields(new Error('mock cron error'));
-            var spy2 = t.stub(this.uut, 'housekeeping').yields(new Error('mock houskeeping error'));
             this.uut.run({ countLimit: 1 }, function(err) {
                 t.ok(spy1.called);
-                t.ok(spy2.called);
                 t.done();
             })
         },
