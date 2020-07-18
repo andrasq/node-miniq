@@ -130,7 +130,11 @@ Data format:
     <id>|<jobtype>|<payload>
     ...
 
-Disallow commas in jobtypes?
+Notes:
+- Disallow commas in jobtypes?
+- Byte-count all payloads to allow arbitrary binary data?
+- make scheduler query store directly for waiting jobtypes?  Just return metadata and jobs to queue to pass to runner.
+  (Could also attach runner to scheduler... no)
 
 ### Store
 
