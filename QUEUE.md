@@ -220,6 +220,7 @@ Scoreboard of completion stauts and results.
 
 ### Runner
 
+- *runJobs*
 - *getRunningJobs* return the currently running jobs, to renew locks on
 - *getStoppedJobs* return the jobs that are no longer running, annotated with `code` and `exitcode`
-
+- *getBatchSize*
