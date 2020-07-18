@@ -99,6 +99,7 @@ module.exports = {
                 uut.getStoppedJobs(10, function(err, stoppedJobs) {
                     t.ifError(err);
                     t.equal(stoppedJobs.length, 3);
+                    t.deepEqual(uut.runningJobs, {});
                     t.done();
                 })
             }, 25);
