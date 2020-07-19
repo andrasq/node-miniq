@@ -25,16 +25,16 @@ module.exports = {
         done();
     },
 
-    'getRunningJobs': {
-        'returns the jobs in the runningJobs table': function(t) {
+    'getRunningJobIds': {
+        'returns the jobs ids from the runningJobs table': function(t) {
             var uut = this.uut;
             var jobs = this.jobs;
             uut.runningJobs = jobs;
-            uut.getRunningJobs(function(err, runningJobs) {
+            uut.getRunningJobIds(function(err, runningJobIds) {
                 t.ifError(err);
-                t.deepEqual(runningJobs, utils.valuesOf(jobs));
-                uut.getRunningJobs(function(err, runningJobs2) {
-                    t.deepEqual(runningJobs2, runningJobs);
+                t.deepEqual(runningJobIds, Object.keys(jobs));
+                uut.getRunningJobIds(function(err, runningJobIds2) {
+                    t.deepEqual(runningJobIds2, runningJobIds);
                     t.done();
                 })
             })
@@ -82,12 +82,13 @@ module.exports = {
 
     'runJobs': {
         'enters jobs into runningJobs table': function(t) {
+            var uut = this.uut;
             var type1Jobs = utils.valuesOf(this.jobs).slice(0, 2);
-            this.uut.runJobs('type1', type1Jobs, 'mock-sysid', 'function(){}');
-            this.uut.getRunningJobs(function(err, runningJobs) {
+            uut.runJobs('type1', type1Jobs, 'mock-sysid', 'function(){}');
+            uut.getRunningJobIds(function(err, runningJobIds) {
                 t.ifError(err);
-                t.equal(runningJobs.length, 2);
-                runningJobs.forEach(function(job, i) { t.contains(job, type1Jobs[i]) });
+                t.equal(runningJobIds.length, 2);
+                runningJobIds.forEach(function(id) { t.contains(uut.runningJobs[id], { id: id }) });
                 t.done();
             })
         },

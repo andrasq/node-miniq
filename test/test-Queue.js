@@ -1,6 +1,6 @@
 'use strict';
 
-var qmock = require('qmock');
+var util = require('util');
 var utils = require('../lib/utils');
 var Queue = require('../lib/Queue');
 var JournalArray = require('../lib/JournalArray');
@@ -23,6 +23,13 @@ function makeQueue( ) {
 module.exports = {
     beforeEach: function(done) {
         this.uut = makeQueue();
+        this.uut.configure({
+            statsEmitter: {
+                emit: utils.varargs(function(argv) {
+                    argv.unshift('stats:'); utils.invoke(console.log, argv);
+                }),
+            }
+        })
         done();
     },
 
@@ -142,7 +149,7 @@ module.exports = {
             })
         },
 
-        'runs cron steps': function(t) {
+        'runs cron steps and emits stats': function(t) {
             this.uut.configure({
                 cron: {
                     renewLocksInterval: 1,
@@ -153,10 +160,12 @@ module.exports = {
             var spyRenewLocks = t.spy(this.uut, '_renewLocks');
             var spyExpireLocks = t.spy(this.uut, '_expireLocks');
             var spyExpireJobs = t.spy(this.uut, '_expireJobs');
+            var spyStats = t.spy(this.uut.stats, 'emit');
             this.uut.run({ timeLimitMs: 5 }, function(err) {
                 t.ok(spyRenewLocks.called);
                 t.ok(spyExpireLocks.called);
                 t.ok(spyExpireJobs.called);
+                t.ok(spyStats.callCount >= 3);
                 t.done();
             })
         },
