@@ -618,6 +618,15 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
         },
     },
 
+    'assignTo': {
+        'transfers own properties onto target': function(t) {
+            var a = {a:1};
+            t.deepEqual(utils.assignTo(a, {b:2}), {a:1, b:2});
+            t.deepEqual(a, {a:1, b:2});
+            t.done();
+        },
+    },
+
     'valuesOf': {
         'returns own properties in an array': function(t) {
             function Foo() { this.a = 1; this.b = 2 }
