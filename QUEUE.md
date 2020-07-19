@@ -63,13 +63,12 @@ Organization
   same sysid if they cannot access any of the same stores, even if other daemons have simultaneous access
   to both of their stores.  The sysid needs to prevent ambiguity of lock ownership within
   a store, but it is not required to be system-wide unique. (It can be nice if it is, though)
-* a _partitioned store_ is a queue with stores, some of which are not reachable
 
 Flow
 ----
 
 - jobs are added with jobtype and payload (newline terminated string).  Any daemon can accept and add jobs.
-- jobtype is annotated with tenant id, and timestamp|jobtype|payload is appended to durable journal
+- jobtype is annotated with tenant id, and `jobid | jobtype | payload` is appended to durable journal
 - the journal is a local file.  New jobs are appended to the end, jobs are ingested by reading from the front.
   The file is periodically rotated (or compacted).  (Hash can be used to erase ingested lines.)
 - journal is ingested and stored into the shared store
@@ -221,6 +220,7 @@ Scoreboard of completion stauts and results.
 ### Runner
 
 - *runJobs*
-- *getRunningJobs* return the currently running jobs, to renew locks on
-- *getStoppedJobs* return the jobs that are no longer running, annotated with `code` and `exitcode`
-- *getBatchSize*
+- *getRunningJobs( cb )* return the currently running jobs, to renew locks on
+- *getStoppedJobs( cb )* return the jobs that are no longer running, annotated with `code` and `exitcode`
+- *getBatchSize( jobtype, cb )*
+- *getRunningJobtypes( cb )*
