@@ -142,6 +142,25 @@ module.exports = {
             })
         },
 
+        'runs cron steps': function(t) {
+            this.uut.configure({
+                cron: {
+                    renewLocksInterval: 1,
+                    expireLocksInterval: 1,
+                    expireJobsInterval: 1,
+                },
+            })
+            var spyRenewLocks = t.spy(this.uut, '_renewLocks');
+            var spyExpireLocks = t.spy(this.uut, '_expireLocks');
+            var spyExpireJobs = t.spy(this.uut, '_expireJobs');
+            this.uut.run({ timeLimitMs: 5 }, function(err) {
+                t.ok(spyRenewLocks.called);
+                t.ok(spyExpireLocks.called);
+                t.ok(spyExpireJobs.called);
+                t.done();
+            })
+        },
+
         'stops by count': function(t) {
             var count = 0;
             t.stub(this.uut, 'ingestJournal', function(cb) { count += 1; cb() });
