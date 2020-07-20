@@ -162,6 +162,7 @@ module.exports = {
             var spyExpireJobs = t.spy(this.uut, '_expireJobs');
             var spyStats = t.spy(this.uut.stats, 'emit');
             this.uut.run({ timeLimitMs: 5 }, function(err) {
+                t.ifError(err);
                 t.ok(spyRenewLocks.called);
                 t.ok(spyExpireLocks.called);
                 t.ok(spyExpireJobs.called);
