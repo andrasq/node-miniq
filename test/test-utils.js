@@ -614,6 +614,7 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
             t.deepEqual(utils.deassign({}, {a:1, b:2}, {a:true}), {a:1});
             t.deepEqual(utils.deassign({}, {a:1, b:2}, {a:false}), {});
             t.deepEqual(utils.deassign({c:3}, {a:1, b:2}, {a:true, b:0}), {c:3, a:1});
+            t.deepEqual(utils.deassign({}, null, {a:true}), {});
             t.done();
         },
     },
