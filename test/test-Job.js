@@ -53,6 +53,15 @@ module.exports = {
         },
     },
 
+    'getCreateDt': {
+        'parses the id into a Date': function(t) {
+            var job = { id: '123-sysid-001' };
+            t.ok(Job.getCreateDt(job) instanceof Date);
+            t.equal(+Job.getCreateDt(job), +new Date(4096 + 128 + 3));
+            t.done();
+        },
+    },
+
     'speed': {
         'should create jobs fast': function(t) {
             var lines = [
