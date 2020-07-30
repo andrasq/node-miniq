@@ -191,4 +191,50 @@ module.exports = {
             })
         },
     },
+
+    'runNewJobs': {
+        'does nothing if no waiting jobs': function(t) {
+            var spy = t.spy(this.uut.store, 'getJobs');
+            t.stub(this.uut.store, 'getWaitingJobcounts').yields(null, {});
+            this.uut.runNewJobs(function(err) {
+                t.ifError(err);
+                t.ok(!spy.called);
+                t.done();
+            })
+        },
+
+        'selects a waiting jobtype to run and runs the jobs': function(t) {
+            var spySelect = t.spy(this.uut.scheduler, 'selectJobtypeToRun');
+            t.stub(this.uut.store, 'getWaitingJobcounts').yields(null, { type1: 1, type2: 1 });
+            var jobs = [];
+            t.stub(this.uut.store, 'getJobs').yields(null, jobs);
+            t.stub(this.uut.handlerStore, 'getHandler').yields(null, {});
+            var spyRun = t.stub(this.uut.runner, 'runJobs');
+            this.uut.runNewJobs(function(err) {
+                t.ifError(err);
+                t.ok(spySelect.called);
+                t.done();
+            })
+        },
+
+        'looks up the jobtype handler': function(t) {
+t.skip();
+        },
+
+        'runs the new jobs': function(t) {
+            var jobs = [{}];
+            t.stub(this.uut.store, 'getWaitingJobcounts').yields(null, { type1: 1, type2: 1 });
+            t.stub(this.uut.store, 'getJobs').yields(null, jobs);
+            t.stub(this.uut.handlerStore, 'getHandler').yields(null, {});
+            var spyRun = t.stub(this.uut.runner, 'runJobs');
+            this.uut.runNewJobs(function(err) {
+                t.ifError(err);
+                t.ok(spyRun.called);
+                t.contains(['type1', 'type2'], spyRun.args[0][0]);
+                t.equal(spyRun.args[0][1], jobs);
+                t.deepEqual(spyRun.args[0][1], jobs);
+                t.done();
+            })
+        },
+    },
 }
