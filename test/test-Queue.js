@@ -6,6 +6,7 @@ var Queue = require('../lib/Queue');
 var JournalArray = require('../lib/JournalArray');
 var SchedulerRandom = require('../lib/SchedulerRandom');
 var MockStore = require('../lib/MockStore');
+var HandlerStore = require('../lib/HandlerStore');
 var MockRunner = require('../lib/MockRunner');
 
 function makeQueue( ) {
@@ -15,6 +16,7 @@ function makeQueue( ) {
         new JournalArray(),
         new SchedulerRandom(),
         new MockStore(),
+        new HandlerStore(new MockStore()),
         new MockRunner(),
         utils.makeLogger(sysid)
     );
@@ -41,7 +43,8 @@ module.exports = {
         },
 
         'sets a default sysid': function(t) {
-            var uut = new Queue(null, new JournalArray(), new SchedulerRandom(), new MockStore(), new MockRunner(), utils.makeLogger(''));
+            var uut = new Queue(null,
+                new JournalArray(), new SchedulerRandom(), new MockStore(), new MockStore(), new MockRunner(), utils.makeLogger(''));
             t.equal(typeof uut.sysid, 'string');
             t.ok(uut.sysid.length > 0);
             t.done();
