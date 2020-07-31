@@ -110,7 +110,4 @@ module.exports = {
             })
         },
     },
-
-    'getStoppedJobs': {
-    },
 }

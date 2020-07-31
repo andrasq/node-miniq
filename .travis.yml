@@ -2,11 +2,9 @@ language: node_js
 node_js:
   - 0.8
   - 0.10
-  - 5.8
-  - 5.12
-  - 6
   - 8
   - 10
+  - 14
 before_install:
   - npm install -g qnit
 after_success:
