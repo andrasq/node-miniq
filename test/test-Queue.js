@@ -2,6 +2,7 @@
 
 var util = require('util');
 var utils = require('../lib/utils');
+var Store = require('../lib/Store');
 var Queue = require('../lib/Queue');
 var JournalArray = require('../lib/JournalArray');
 var SchedulerRandom = require('../lib/SchedulerRandom');
@@ -206,7 +207,7 @@ module.exports = {
                     t.equal(spyStats.args[0][0], 'renewLocks');
                     t.deepEqual(spyStats.args[0][1], ['1', '3', '2']);
                     t.ok(spyRenew.called);
-                    t.deepEqual(spyRenew.args[0].slice(0, 3), [['1', '3', '2'], uut.sysid, 123456]);
+                    t.deepEqual(spyRenew.args[0].slice(0, -1), [['1', '3', '2'], uut.sysid, 123456]);
                     t.done();
                 })
             },
@@ -245,6 +246,47 @@ module.exports = {
                     t.equal(err, 'mock store error');
                     t.done();
                 })
+            },
+        },
+
+        '_expireJobs': {
+            'expires done jobs and unrun jobs': function(t) {
+                this.uut.configure({ locks: { doneJobExpireMs: 12345, unrunJobExpireMs: 23456 } });
+                var spy = t.spy(this.uut.store, 'expireJobs');
+                this.uut._expireJobs(function(err) {
+                    t.ifError(err);
+                    t.equal(spy.callCount, 2);
+                    t.deepEqual(spy.args[0].slice(0, -2), [null, Store.LOCK_DONE, 12345]);
+                    t.ok(spy.args[0][3] > 100);
+                    t.deepEqual(spy.args[1].slice(0, -2), [null, Store.LOCK_NONE, 23456]);
+                    t.ok(spy.args[0][3] > 100);
+                    t.done();
+                })
+            },
+
+            'returns store errors': function(t) {
+                var uut = this.uut;
+                utils.iterateSteps([
+                    function(next) {
+                        var stub = t.stub(uut.store, 'expireJobs')
+                          .yields('mock store error');
+                        uut._expireJobs(function(err) {
+                            t.equal(err, 'mock store error');
+                            stub.restore();
+                            next();
+                        })
+                    },
+                    function(next) {
+                        var stub = t.stub(uut.store, 'expireJobs')
+                          .onCall(0).yields()
+                          .onCall(1).yields('mock store error');
+                        uut._expireJobs(function(err) {
+                            t.equal(err, 'mock store error');
+                            stub.restore();
+                            next();
+                        })
+                    },
+                ], t.done);
             },
         },
     },
