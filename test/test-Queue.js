@@ -192,6 +192,47 @@ module.exports = {
         },
     },
 
+    'cron steps': {
+        '_renewLocks': {
+            'renews all running jobs': function(t) {
+                var uut = this.uut;
+                uut.configure({ locks: { lockExpireMs: 123456 } });
+                var spyStats = t.spy(uut, 'emitStats');
+                var spyRenew = t.spy(uut.store, 'renewLocks');
+                t.stub(uut.runner, 'getRunningJobIds').yields(null, ['1', '3', '2']);
+                uut._renewLocks(function(err) {
+                    t.ifError(err);
+                    t.ok(spyStats.called);
+                    t.equal(spyStats.args[0][0], 'renewLocks');
+                    t.deepEqual(spyStats.args[0][1], ['1', '3', '2']);
+                    t.ok(spyRenew.called);
+                    t.deepEqual(spyRenew.args[0].slice(0, 3), [['1', '3', '2'], uut.sysid, 123456]);
+                    t.done();
+                })
+            },
+
+            'returns runner errors': function(t) {
+                t.stub(this.uut.runner, 'getRunningJobIds').yields('mock runner error');
+                this.uut._renewLocks(function(err) {
+                    t.equal(err, 'mock runner error');
+                    t.done();
+                })
+            },
+
+            'returns store errors': function(t) {
+                t.stub(this.uut.runner, 'getRunningJobIds').yields(null, ['1']);
+                t.stub(this.uut.store, 'renewLocks').yields('mock store error');
+                this.uut._renewLocks(function(err) {
+                    t.equal(err, 'mock store error');
+                    t.done();
+                })
+            },
+        },
+
+        '_expireLocks': {
+        },
+    },
+
     'handleDoneJobs': {
         beforeEach: function(done) {
             function makeId(i) { return utils.encode64(Date.now()) + '-mock-' + i }
