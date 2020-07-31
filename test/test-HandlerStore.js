@@ -1,5 +1,6 @@
 'use strict';
 
+var Store = require('../lib/Store');
 var HandlerStore = require('../lib/HandlerStore');
 var MockStore = require('../lib/MockStore');
 
@@ -20,7 +21,9 @@ module.exports = {
             },
 
             'should retrieve handler': function(t) {
-                t.stub(this.uut.store, 'getNewestByType').yields(null, [{ data: { lang: 'mock', body: 'x', foo: 'bar' } }]);
+                this.uut.store.jobs = [
+                    { type: 'some-jobtype', lock: Store.LOCK_HANDLER, data: { lang: 'mock', body: 'x', foo: 'bar' } }
+                ]
                 this.uut.getHandler('some-jobtype', function(err, handler) {
                     t.ifError(err);
                     t.deepStrictEqual(Object.assign({}, handler), {
@@ -36,7 +39,7 @@ module.exports = {
             },
 
             'should return db errors': function(t) {
-                t.stubOnce(this.uut.store, 'getNewestByType').yields('mock error');
+                t.stubOnce(this.uut.store, 'getLockedJobs').yields('mock error');
                 this.uut.getHandler('some-jobtype', function(err, handler) {
                     t.equal(err, 'mock error');
                     t.done();
