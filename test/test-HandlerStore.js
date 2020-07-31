@@ -1,5 +1,6 @@
 'use strict';
 
+var utils = require('../lib/utils');
 var Store = require('../lib/Store');
 var HandlerStore = require('../lib/HandlerStore');
 var MockStore = require('../lib/MockStore');
@@ -26,7 +27,7 @@ module.exports = {
                 ]
                 this.uut.getHandler('some-jobtype', function(err, handler) {
                     t.ifError(err);
-                    t.deepStrictEqual(Object.assign({}, handler), {
+                    t.deepStrictEqual(utils.assignTo({}, handler), {
                         lang: 'mock',
                         body: 'x',
                         eid: undefined,
