@@ -62,10 +62,10 @@ module.exports = {
             var uut = this.uut;
             var jobs = this.jobs;
             uut.stoppedJobs = jobs;
-            uut.getStoppedJobs(function(err, stoppedJobs) {
+            uut.getStoppedJobs(100, function(err, stoppedJobs) {
                 t.ifError();
                 t.deepEqual(stoppedJobs, utils.valuesOf(jobs));
-                uut.getStoppedJobs(function(err, stoppedJobs2) {
+                uut.getStoppedJobs(100, function(err, stoppedJobs2) {
                     t.deepEqual(stoppedJobs2, []);
                     t.done();
                 })
