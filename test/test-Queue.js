@@ -192,6 +192,82 @@ module.exports = {
         },
     },
 
+    'handleDoneJobs': {
+        beforeEach: function(done) {
+            function makeId(i) { return utils.encode64(Date.now()) + '-mock-' + i }
+            this.makeId = makeId;
+            this.uut.runner.stoppedJobs = [
+                { id: makeId('10'), type: 'type1', exitcode: 100, code: 'retry' },
+                { id: makeId('11'), type: 'type1', exitcode: 200, code: 'ok' },
+                { id: makeId('20'), type: 'type2', exitcode: 200, code: 'ok' },
+                { id: makeId('21'), type: 'type2', exitcode: 200, code: 'ok' },
+                { id: makeId('40'), type: 'type4', exitcode: 400, code: 'failed' },
+                { id: makeId('50'), type: 'type5', exitcode: 500, code: 'error' },
+                { id: makeId('51'), type: 'type5', exitcode: 500, code: 'error' },
+            ];
+            done();
+        },
+
+        'notifies scheduler of stopped jobs': function(t) {
+            var spy = t.spy(this.uut.scheduler, 'jobsStopped');
+            this.uut.handleDoneJobs(function(err) {
+                t.equal(spy.callCount, 4);
+                t.deepEqual(spy.args[0], ['type1', 2]);
+                t.deepEqual(spy.args[1], ['type2', 2]);
+                t.deepEqual(spy.args[2], ['type4', 1]);
+                t.deepEqual(spy.args[3], ['type5', 2]);
+                t.done();
+            });
+        },
+
+        'retries errors and retry requests, and archives finished jobs': function(t) {
+            this.uut.runner.stoppedJobs = [
+                { id: this.makeId('10'), type: 'type1', exitcode: 100, code: 'retry' },
+                { id: this.makeId('11'), type: 'type1', exitcode: 200, code: 'ok' },
+                { id: this.makeId('12'), type: 'type1', exitcode: 400, code: 'failed' },
+                { id: this.makeId('13'), type: 'type1', exitcode: 500, code: 'error' },
+            ];
+            var jobIds = this.uut.runner.stoppedJobs.map(function(job) { return job.id });
+            var spy = t.spy(this.uut.store, 'releaseJobs');
+            var spyStats = t.spy(this.uut, 'emitStats');
+            this.uut.handleDoneJobs(function(err) {
+                t.equal(spy.callCount, 2);
+                t.deepEqual(spy.args[0][0], [jobIds[0], jobIds[3]]); // retry
+                t.deepEqual(spy.args[1][0], [jobIds[1], jobIds[2]]); // archive
+                t.deepEqual(spyStats.args[0], ['retryJobs', [jobIds[0], jobIds[3]]]);
+                t.deepEqual(spyStats.args[1], ['archiveJobs', [jobIds[1], jobIds[2]]]);
+                t.done();
+            })
+        },
+
+        'abandons jobs that timed out': function(t) {
+            t.stubOnce(Date, 'now').returns(1);
+            var expiredId = this.makeId('1');
+            this.uut.runner.stoppedJobs = [
+               { id: expiredId + '0', type: 'type1', exitcode: 100, code: 'retry' },
+               { id: expiredId + '1', type: 'type1', exitcode: 100, code: 'retry' },
+            ];
+            var spy = t.spy(this.uut, 'emitStats'); 
+            this.uut.handleDoneJobs(function(err) {
+                t.equal(spy.callCount, 1);
+                t.equal(spy.args[0][0], 'abandonJobs');
+                t.deepEqual(spy.args[0][1], [expiredId + '0', expiredId + '1']);
+                t.done();
+            })
+        },
+
+        'errors': {
+            'returns retry store errors': function(t) {
+// FIXME:
+t.skip();
+            },
+            'returns archive store errors': function(t) {
+// FIXME:
+t.skip();
+            },
+        },
+    },
+
     'runNewJobs': {
         'does nothing if no waiting jobs': function(t) {
             var spy = t.spy(this.uut.store, 'getJobs');
@@ -218,6 +294,7 @@ module.exports = {
         },
 
         'looks up the jobtype handler': function(t) {
+// FIXME:
 t.skip();
         },
 
