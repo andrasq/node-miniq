@@ -230,6 +230,22 @@ module.exports = {
         },
 
         '_expireLocks': {
+            'calls into store': function(t) {
+                var spy = t.spy(this.uut.store, 'expireLocks');
+                this.uut._expireLocks(function(err) {
+                    t.ifError(err);
+                    t.ok(spy.called);
+                    t.done();
+                })
+            },
+
+            'returns store errors': function(t) {
+                t.stub(this.uut.store, 'expireLocks').yields('mock store error');
+                this.uut._expireLocks(function(err) {
+                    t.equal(err, 'mock store error');
+                    t.done();
+                })
+            },
         },
     },
 
