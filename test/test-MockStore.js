@@ -333,4 +333,23 @@ module.exports = {
             t.done);
         },
     },
+
+    'getNewestByType': {
+        'returns the newest matching job': function(t) {
+            this.uut.jobs = [
+                { id: 1, type: 'typeA', dt: new Date(1000), lock: 'x' },
+                { id: 2, type: 'typeB', dt: new Date(1000), lock: 'x' },
+                { id: 6, type: 'typeB', dt: new Date(1000), lock: 'x' }, // <-- this one
+                { id: 3, type: 'typeB', dt: new Date(1001), lock: 'x' }, // <-- this one
+                { id: 4, type: 'typeA', dt: new Date(1003), lock: 'x' }, // wrong type
+                { id: 5, type: 'typeB', dt: new Date(1003), lock: 'y' }, // wrong lock
+            ];
+            this.uut.getNewestByType('typeB', 'x', function(err, jobs) {
+                t.ifError(err);
+                t.equal(jobs.length, 1);
+                t.contains(jobs[0], { id: 3, type: 'typeB' });
+                t.done();
+            })
+        },
+    },
 }
