@@ -319,7 +319,6 @@ module.exports = {
                     store.expireJobs(null, '__done', cutoffDt, 100, next);
                 },
                 function(next, removed) {
-console.log("AR: removed jobs", removed);
                     t.equal(removed.length, 2);
                     t.equal(removed[0].id, 'j1');
                     t.equal(removed[1].id, 'j3');

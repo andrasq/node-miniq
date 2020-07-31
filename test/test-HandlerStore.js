@@ -57,7 +57,7 @@ module.exports = {
                 t.throws(function(){ uut.setHandler('sysid', 'jobtype', {}, t.done) }, /body required/);
                 t.throws(function(){ uut.setHandler('sysid', 'jobtype', {lang: 'mock'}, t.done) }, /required/);
                 t.throws(function(){ uut.setHandler('sysid', 'jobtype', {body: 'x'}, t.done) }, /required/);
-                t.stub(uut.store, 'insertJob').yields();
+                t.stub(uut.store, 'addJobs').yields();
                 uut.setHandler('sysid', 'jobtype', {lang: 'mock', body: 'x'}, function(err) {
                     t.ifError(err);
                     t.done();
