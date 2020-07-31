@@ -57,17 +57,6 @@ module.exports = {
         },
     },
 
-    'getRunningJobtypes': {
-        'returns the types of running jobs': function(t) {
-            this.uut.runningJobs = this.jobs;
-            this.uut.getRunningJobtypes(function(err, types) {
-                t.ifError(err);
-                t.deepEqual(types, ['type1', 'type3']);
-                t.done();
-            })
-        },
-    },
-
     'getStoppedJobs': {
         'removes and returns the jobs from the stoppedJobs table': function(t) {
             var uut = this.uut;
