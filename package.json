@@ -19,7 +19,7 @@
   },
 
   "scripts": {
-    "test": "qnit -t 200 test/test-*",
+    "test": "qnit -t 400 test/test-*",
     "coverage": "nyc -r text -r lcov npm test",
     "clean": "rm -rf coverage .nyc_output"
   }

@@ -7,6 +7,7 @@ module.exports = {
     setUp: function(done) {
         this.Foo = function Foo() {};
         this.Foo.prototype.m1 = function m1() {};
+        this.Foo.prototype.m1.__abstract__ = true;
         this.Foo.prototype.p1 = 1;
         this.Foo.prototype.p2 = 'two';
 
