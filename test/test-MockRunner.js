@@ -109,6 +109,17 @@ module.exports = {
                 })
             }, 25);
         },
+
+        'immediately transitions jobs with no handler to 500 stopped': function(t) {
+            var uut = this.uut;
+            uut.runJobs('mock-type', utils.valuesOf(this.jobs), { lang: 'mock' });
+            uut.getStoppedJobs(20, function(err, jobs) {
+                t.equal(jobs.length, 3);
+                t.deepEqual(jobs.map(function(job) { return job.exitcode }), [500, 500, 500]);
+                t.deepEqual(jobs.map(function(job) { return job.code }), ['BAD_HANDLER', 'BAD_HANDLER', 'BAD_HANDLER']);
+                t.done();
+            })
+        },
     },
 
     'getStoppedJobs': {
