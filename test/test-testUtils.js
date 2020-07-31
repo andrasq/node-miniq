@@ -6,7 +6,7 @@ var utils = require('../lib/testUtils');
 module.exports = {
     setUp: function(done) {
         this.Foo = function Foo() {};
-        this.Foo.prototype.m1 = function() {};
+        this.Foo.prototype.m1 = function m1() {};
         this.Foo.prototype.p1 = 1;
         this.Foo.prototype.p2 = 'two';
 
@@ -33,9 +33,16 @@ module.exports = {
             bar.m1 = 'not function';
             t.throws(function(){ utils.implements(bar, Foo) }, /types differ/);
             var foo = new Foo();
-            foo.m1 = function() {};
+            foo.m1 = function m1() {};
             foo.p2 = {x: 'not string'};
             t.throws(function(){ utils.implements(foo, Foo) }, /types differ/);
+            t.done();
+        },
+
+        'catches different method name': function(t) {
+            var Foo = this.Foo, bar = new this.Bar();
+            bar.m1 = function m2(){};
+            t.throws(function(){ utils.implements(bar, Foo) }, /different name/);
             t.done();
         },
 

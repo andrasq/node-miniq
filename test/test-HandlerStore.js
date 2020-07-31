@@ -20,7 +20,7 @@ module.exports = {
             },
 
             'should retrieve handler': function(t) {
-                t.stub(this.uut.store, 'getNewestJob').yields(null, { data: { lang: 'mock', body: 'x', foo: 'bar' } });
+                t.stub(this.uut.store, 'getNewestByType').yields(null, { data: { lang: 'mock', body: 'x', foo: 'bar' } });
                 this.uut.getHandler('some-jobtype', function(err, handler) {
                     t.ifError(err);
                     t.deepStrictEqual(Object.assign({}, handler), {
@@ -36,7 +36,7 @@ module.exports = {
             },
 
             'should return db errors': function(t) {
-                t.stubOnce(this.uut.store, 'getNewestJob').yields('mock error');
+                t.stubOnce(this.uut.store, 'getNewestByType').yields('mock error');
                 this.uut.getHandler('some-jobtype', function(err, handler) {
                     t.equal(err, 'mock error');
                     t.done();
