@@ -233,5 +233,6 @@ Scoreboard of completion stauts and results.
 - **runJobs( jobtype, jobsArray, handler )**
 - **getRunningJobIds( cb )** return the ids of the currently running jobs, to renew their locks
 - **getStoppedJobs( cb )** return the jobs that are no longer running, annotated with `code` and `exitcode`
+  and possibly without `data` 
 - **getBatchSize( jobtype, cb )**
 
