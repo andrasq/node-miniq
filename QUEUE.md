@@ -43,6 +43,13 @@ Core Concepts
 * *owner* is the _daemon_ that has the _lock_ (whose sysid is stored in the lock field).
   If empty, the job is not owned.
 
+`Job`
+- *id*
+- *type*
+- *dt*
+- *lock*
+- *data*
+
 ### Job Lifecycle
 
 - job is created with `dt` = datetime when eligible to run, `lock` = (empty string)
@@ -167,13 +174,14 @@ Notes:
 
 ## Handler Store
 
+`JobHandler`
 - *id* unique handler id, for cleaning up old versions
 - *type* jobtype (tenant+funcName tuple)
 - *dt*   create date, used to find newest version
 - *lock* job owner (?? tenant id? user id?)
 - *data* handler function
 
-Data is a json object of strings:
+`data` is a json object of strings:
 - *eid* compatible engine id, for reusing a runner context for multiple jobtypes
 - *lang* language (node, http, php, etc)
 - *before* runtime env bootstrap script, in same lang as body, prorated against tasks run
@@ -222,7 +230,7 @@ Scoreboard of completion stauts and results.
 
 ### Runner
 
-- *runJobs*
+- *runJobs( jobtype, jobsArray, handler )*
 - *getRunningJobIds( cb )* return the ids of the currently running jobs, to renew their locks
 - *getStoppedJobs( cb )* return the jobs that are no longer running, annotated with `code` and `exitcode`
 - *getBatchSize( jobtype, cb )*
