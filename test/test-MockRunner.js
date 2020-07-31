@@ -60,11 +60,11 @@ module.exports = {
     'getStoppedJobs': {
         'removes and returns the jobs from the stoppedJobs table': function(t) {
             var uut = this.uut;
-            var jobs = this.jobs;
-            uut.stoppedJobs = jobs;
+            var jobs = utils.valuesOf(this.jobs);
+            uut.stoppedJobs = jobs.slice(0);
             uut.getStoppedJobs(100, function(err, stoppedJobs) {
                 t.ifError();
-                t.deepEqual(stoppedJobs, utils.valuesOf(jobs));
+                t.deepEqual(stoppedJobs, jobs);
                 uut.getStoppedJobs(100, function(err, stoppedJobs2) {
                     t.deepEqual(stoppedJobs2, []);
                     t.done();
