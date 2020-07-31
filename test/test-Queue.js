@@ -130,6 +130,18 @@ module.exports = {
                 t.done();
             })
         },
+
+        'returns and logs journal write errors': function(t) {
+            t.stub(this.uut.journal, 'write').yields('mock journal error');
+            var spy = t.spy(this.uut.log, 'error');
+            this.uut.addJobs('type1', 'line1\nline2\n', function(err, ret) {
+                t.equal(err, 'mock journal error');
+                t.ok(spy.called);
+                t.contains(spy.args[0][0], 'addJobs error:');
+                t.contains(spy.args[0][0], 'mock journal error');
+                t.done();
+            })
+        },
     },
 
     'run': {
