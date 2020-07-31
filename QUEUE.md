@@ -230,8 +230,8 @@ Scoreboard of completion stauts and results.
 
 ### Runner
 
-- *runJobs( jobtype, jobsArray, handler )*
-- *getRunningJobIds( cb )* return the ids of the currently running jobs, to renew their locks
-- *getStoppedJobs( cb )* return the jobs that are no longer running, annotated with `code` and `exitcode`
-- *getBatchSize( jobtype, cb )*
+- **runJobs( jobtype, jobsArray, handler )**
+- **getRunningJobIds( cb )** return the ids of the currently running jobs, to renew their locks
+- **getStoppedJobs( cb )** return the jobs that are no longer running, annotated with `code` and `exitcode`
+- **getBatchSize( jobtype, cb )**
 
