@@ -314,7 +314,7 @@ module.exports = {
                 { id: makeId('21'), type: 'type2', exitcode: 200, code: 'ok' },
                 { id: makeId('40'), type: 'type4', exitcode: 400, code: 'failed' },
                 { id: makeId('50'), type: 'type5', exitcode: 500, code: 'error' },
-                { id: makeId('51'), type: 'type5', exitcode: 500, code: 'error' },
+                { id: makeId('51'), type: 'type5', exitcode: 501, code: 'error' },
             ];
             done();
         },

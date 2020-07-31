@@ -75,7 +75,7 @@ module.exports = {
             var jobs;
             for (var i = 0; i < 20000; i++) jobs = Job.linesToJobs(lines);
             var t2 = Date.now();
-            console.log("AR: 100k lines in %d ms", t2 - t1);    // 48 ms for 100k
+            console.log("AR: converted 100k lines to Jobs in %d ms", t2 - t1);  // 48 ms for 100k
             t.done();
         },
     },
