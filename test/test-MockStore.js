@@ -334,20 +334,24 @@ module.exports = {
         },
     },
 
-    'getNewestByType': {
-        'returns the newest matching job': function(t) {
+    'getLockedJobs': {
+        'returns the matching jobs newest first': function(t) {
             this.uut.jobs = [
-                { id: 1, type: 'typeA', dt: new Date(1000), lock: 'x' },
-                { id: 2, type: 'typeB', dt: new Date(1000), lock: 'x' },
-                { id: 6, type: 'typeB', dt: new Date(1000), lock: 'x' }, // <-- this one
+                { id: 1, type: 'typeA', dt: new Date(1000), lock: 'x' }, // wrong type
+                { id: 2, type: 'typeB', dt: new Date(1000), lock: 'x' }, // yes
+                { id: 6, type: 'typeB', dt: new Date(1000), lock: 'x' }, // yes
                 { id: 3, type: 'typeB', dt: new Date(1001), lock: 'x' }, // <-- this one
                 { id: 4, type: 'typeA', dt: new Date(1003), lock: 'x' }, // wrong type
                 { id: 5, type: 'typeB', dt: new Date(1003), lock: 'y' }, // wrong lock
             ];
             this.uut.getNewestByType('typeB', 'x', function(err, jobs) {
                 t.ifError(err);
-                t.equal(jobs.length, 1);
-                t.contains(jobs[0], { id: 3, type: 'typeB' });
+                t.equal(jobs.length, 3);
+                t.contains(jobs[0], { id: 3, type: 'typeB', lock: 'x' });
+                t.contains(jobs[1], { type: 'typeB', lock: 'x' });
+                t.contains(jobs[2], { type: 'typeB', lock: 'x' });
+                t.contains([2, 6], jobs[1].id);
+                t.contains([2, 6], jobs[2].id);
                 t.done();
             })
         },
