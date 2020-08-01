@@ -189,6 +189,7 @@ Notes:
 - *beforeEach* per-batch init script, prorated against batch jobs.  Optional.
 - *body* function body (or url that runs the script)
 - *afterEach* per-batch cleanup script, prorated against batch jobs.  Optional.
+- *options* job runner options
 
 ### State
 

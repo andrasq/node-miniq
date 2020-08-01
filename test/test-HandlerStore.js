@@ -34,6 +34,7 @@ module.exports = {
                         before: undefined,
                         beforeEach: undefined,
                         afterEach: undefined,
+                        options: undefined,
                     })
                     t.done();
                 })
