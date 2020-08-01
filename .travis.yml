@@ -1,7 +1,6 @@
 language: node_js
 node_js:
-  # microrest/mw has a dependency on setImmediate
-  # - 0.8
+  - 0.8
   - 0.10
   - 8
   - 10
