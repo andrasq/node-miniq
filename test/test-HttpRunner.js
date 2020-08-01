@@ -14,11 +14,6 @@ module.exports = {
         this.httpCalls = { count: 0, body: [] };
 
         this.makeUrl = function makeUrl( path ) { return 'http://0.0.0.0:1337' + path };
-        this.makeUri = function makeUri( path, options ) { return utils.assignTo({
-            url: path[0] !== '/' ? path : 'http://0.0.0.0:1337' + path,
-            encoding: 'utf8',
-            method: 'POST',
-        }, options || {}) };
 
         var self = this;
         this.httpServer = http.createServer(function(req, res) {
@@ -67,6 +62,15 @@ module.exports = {
 
 
     'httpServer': {
+        before: function(done) {
+            this.makeUri = function makeUri( path, options ) { return utils.assignTo({
+                url: path[0] !== '/' ? path : 'http://0.0.0.0:1337' + path,
+                encoding: 'utf8',
+                method: 'POST',
+            }, options || {}) };
+            done();
+        },
+
         'returns a response': function(t) {
             microreq(this.makeUri('/echo?a=1&b=2', { encoding: 'json' }), function(err, res, body) {
                 t.ifError(err);
@@ -182,6 +186,36 @@ module.exports = {
                     })
                 })
             })
+        },
+
+        'errors': {
+            'converts an http error to 500': function(t) {
+                var uut = this.uut;
+                uut.runJobs('type-E', [{ id: 99, data: 'test-E1' }], { body: 'http://localhost:1338/echo' });
+                setTimeout(function() {
+                    uut.getStoppedJobs(10, function(err, jobs) {
+                        t.ifError(err);
+                        t.equal(jobs.length, 1);
+                        t.equal(jobs[0].exitcode, 500);
+                        t.equal(jobs[0].code, 'ECONNREFUSED');
+                        t.done();
+                    })
+                }, 5);
+            },
+
+            'converts an http timeout to 500': function(t) {
+                var uut = new HttpRunner({ jobTimeoutMs: 10 });
+                uut.runJobs('type-E', [{ id: 99, data: 'test-E1' }], { body: this.makeUrl('/sleep?sleepMs=100') });
+                setTimeout(function() {
+                    uut.getStoppedJobs(10, function(err, jobs) {
+                        t.ifError(err);
+                        t.equal(jobs.length, 1);
+                        t.equal(jobs[0].exitcode, 500);
+                        t.equal(jobs[0].code, 'ETIMEDOUT');
+                        t.done();
+                    })
+                }, 10)
+            },
         },
     },
 }
