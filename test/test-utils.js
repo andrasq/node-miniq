@@ -628,6 +628,19 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
         },
     },
 
+    'keysOf': {
+        'returns the own property names of the object': function(t) {
+            t.deepEqual(utils.keysOf(false), []);
+            t.deepEqual(utils.keysOf({}), []);
+            t.deepEqual(utils.keysOf(new Date()), []);
+            var x = new Date();
+            x.a = 1;
+            x.b = [];
+            t.deepEqual(utils.keysOf(x), ['a', 'b']);
+            t.done();
+        },
+    },
+
     'valuesOf': {
         'returns own properties in an array': function(t) {
             function Foo() { this.a = 1; this.b = 2 }
