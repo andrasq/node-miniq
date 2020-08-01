@@ -30,13 +30,14 @@ module.exports = {
     },
 
     'getRunningJobIds': {
-        'returns the jobs ids from the runningJobs table': function(t) {
+        'returns the jobs ids of all jobs held': function(t) {
             var uut = this.uut;
             var jobs = this.jobs;
             uut.runningJobs = jobs;
+            uut.stoppedJobs = [{ id: 999 }];
             uut.getRunningJobIds(function(err, runningJobIds) {
                 t.ifError(err);
-                t.deepEqual(runningJobIds, Object.keys(jobs));
+                t.deepEqual(runningJobIds, Object.keys(jobs).concat(999));
                 uut.getRunningJobIds(function(err, runningJobIds2) {
                     t.deepEqual(runningJobIds2, runningJobIds);
                     t.done();
