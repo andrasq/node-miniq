@@ -157,7 +157,7 @@ module.exports = {
                     t.equal(jobs[0].id, 2);
                     t.done();
                 })
-            }, 17);
+            }, 22);
         },
 
         'runs many jobs': function(t) {
