@@ -4,6 +4,10 @@ var http = require('http');
 var request = require('microreq');
 var microMw = require('microrest/mw');
 var utils = require('../lib/utils');
+var testUtils = require('../lib/testUtils');
+
+var Runner = require('../lib/Runner');
+var HttpRunner = require('../lib/HttpRunner');
 
 module.exports = {
     before: function(done) {
@@ -43,6 +47,11 @@ module.exports = {
     after: function(done) {
         this.httpServer.close();
         done();
+    },
+
+    'constructor': function(t) {
+        t.ok(testUtils.implements(new HttpRunner(), Runner));
+        t.done();
     },
 
     'httpServer': {
