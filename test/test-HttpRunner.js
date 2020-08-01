@@ -106,11 +106,22 @@ module.exports = {
 
     'getRunningJobIds': {
         'returns ids of running jobs': function(t) {
-t.skip();
+            this.uut.runJobs('type1', [{ id: 1, data: 'test1' }, { id: 2, data: 'test2' }], { body: this.makeUrl('/echo') });
+            this.uut.getRunningJobIds(function(err, ids) {
+                t.deepEqual(ids, [1, 2]);
+                t.done();
+            })
         },
 
         'returns ids of stopped but uncollected jobs': function(t) {
-t.skip();
+            this.uut.runJobs('type1', [{ id: 1, data: 'test1' }, { id: 2, data: 'test2' }], { body: this.makeUrl('/echo') });
+            var uut = this.uut;
+            setTimeout(function() {
+                uut.getRunningJobIds(function(err, ids) {
+                    t.deepEqual(ids, [1, 2]);
+                    t.done();
+                })
+            }, 20);
         },
     },
 
