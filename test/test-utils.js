@@ -699,16 +699,15 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
     'setInterval': {
         'returns timer that can be stopped': function(t) {
             var ncalls = 0;
-            var timer = utils.setInterval(function(){ ncalls += 1; if (ncalls == 2) timer.unref() }, 3);
+            var timer = utils.setInterval(function(){ ncalls += 1; if (ncalls == 2) timer.unref() }, 4);
             setTimeout(function() {
-// FIXME: node-v0.10.42 gets 5 calls (and 8 calls below, so is not stopping)
-                t.equal(ncalls, 4);
+                t.equal(ncalls, 5);
                 timer.stop();
                 setTimeout(function() {
-                    t.equal(ncalls, 4);
+                    t.equal(ncalls, 5);
                     t.done();
-                }, 10);
-            }, 14);
+                }, 17);
+            }, 22);
         },
 
         'can ref and unref': function(t) {
@@ -729,6 +728,32 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
             t.ok(spyUnref.called);
             t.ok(spyRef.called);
             t.done();
+        },
+
+        'a _stopped timer does not run': function(t) {
+            // check that _stopped also disables the timer callback (for node-v0.10 that doesnt cancel the timeout in time)
+            var called = false;
+            var timer = utils.setInterval(function() { called = true }, 1);
+            timer._stopped = true;
+            setTimeout(function() {
+                t.ok(!called);
+                t.done();
+            }, 10);
+        },
+
+        'reschedules a premature timeout': function(t) {
+            var startTime = Date.now();
+            var stopTime = 0;
+            var timer = utils.setInterval(function() { stopTime = Date.now(); timer.stop() }, 5);
+
+            // fudge the nextRun time to make it appear that the timeout triggered too early
+            timer._nextRun += 5;
+
+            setTimeout(function() {
+                t.ok(stopTime > 0);
+                t.ok(stopTime - startTime >= 10);
+                t.done();
+            }, 15);
         },
     },
 
