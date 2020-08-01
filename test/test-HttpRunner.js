@@ -54,6 +54,20 @@ module.exports = {
         t.done();
     },
 
+    'getBatchSize': {
+        'returns the builtin size': function(t) {
+            var uut = new HttpRunner();
+            t.ok(uut.getBatchSize() > 0);
+            t.done();
+        },
+
+        'returns the configured size': function(t) {
+            var uut = new HttpRunner({ batchSize: 123 });
+            t.equal(uut.getBatchSize(), 123);
+            t.done();
+        },
+    },
+
     'httpServer': {
         'returns a response': function(t) {
             request(this.getUri('/echo?a=1&b=2', { encoding: 'json' }), function(err, res, body) {
