@@ -13,10 +13,11 @@ module.exports = {
 
         'getRunningJobIds returns all ids': function(t) {
             var uut = new Runner();
+            uut.waitingJobs = [{ id: 'c' }, { id: 'd' }];
             uut.runningJobs = { a: { id: 'a' }, b: { id: 'b' } };
-            uut.stoppedJobs = [{ id: 'c' }, { id: 'd' }];
+            uut.stoppedJobs = [{ id: 'e' }, { id: 'f' }];
             uut.getRunningJobIds(function(err, ids) {
-                t.deepEqual(ids, ['a', 'b', 'c', 'd']);
+                t.deepEqual(ids, ['a', 'b', 'c', 'd', 'e', 'f']);
                 t.done();
             })
         },
