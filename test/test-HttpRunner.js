@@ -97,13 +97,19 @@ module.exports = {
 
     'getBatchSize': {
         'returns the builtin size': function(t) {
-            t.ok(this.uut.getBatchSize() > 0);
+            t.ok(this.uut.getBatchSize('type1', {}) > 0);
             t.done();
         },
 
         'returns the configured size': function(t) {
             var uut = new HttpRunner({ batchSize: 123 });
-            t.equal(uut.getBatchSize(), 123);
+            t.equal(uut.getBatchSize('type2', {}), 123);
+            t.done();
+        },
+
+        'returns the handler size': function(t) {
+            var uut = new HttpRunner({ batchSize: 123 });
+            t.equal(uut.getBatchSize('type2', { options: { batchSize: 23 } }), 23);
             t.done();
         },
     },
