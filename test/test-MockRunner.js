@@ -78,7 +78,7 @@ module.exports = {
         'enters jobs into runningJobs table': function(t) {
             var uut = this.uut;
             var type1Jobs = utils.valuesOf(this.jobs).slice(0, 2);
-            var ok = uut.runJobs('type1', type1Jobs, this.mockHandlers['type1']);
+            var ok = uut.runJobs('type1', type1Jobs, this.mockHandlers['type1'], function(){});
             uut.getRunningJobIds(function(err, runningJobIds) {
                 t.ifError(err);
                 t.equal(runningJobIds.length, 2);
@@ -89,7 +89,7 @@ module.exports = {
 
         'transitions jobs from running to stopped': function(t) {
             var uut = this.uut;
-            uut.runJobs('mock-type', utils.valuesOf(this.jobs), this.mockHandlers['type1']);
+            uut.runJobs('mock-type', utils.valuesOf(this.jobs), this.mockHandlers['type1'], function(){});
             setTimeout(function() {
                 uut.getStoppedJobs(10, function(err, stoppedJobs) {
                     t.ifError(err);
@@ -102,7 +102,7 @@ module.exports = {
 
         'immediately transitions jobs with no handler to 500 stopped': function(t) {
             var uut = this.uut;
-            uut.runJobs('mock-type', utils.valuesOf(this.jobs), { lang: 'mock' });
+            uut.runJobs('mock-type', utils.valuesOf(this.jobs), { lang: 'mock' }, function(){});
             uut.getStoppedJobs(20, function(err, jobs) {
                 t.equal(jobs.length, 3);
                 t.deepEqual(jobs.map(function(job) { return job.exitcode }), [500, 500, 500]);
