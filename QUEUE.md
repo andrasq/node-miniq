@@ -88,7 +88,7 @@ Flow
   The runners may keep contexts around for eventual reuse, and may hint the scheduler as to what
   contexts are available for more optimal scheduling decisions.
 - the results are written as newline terminated line to stdout as simplified `jobtype|payload` strings.
-  The runners look for output lines starting with "`J: `" (uppercase J, a colon, then a space), and will
+  The runners look for output lines starting with "`#J: `" (hash #, uppercase J, a colon, then a space), and will
   send those lines to the journal to be converted into new jobs.  Other lines are assumed to be log lines
   or debug tracers and are ignored.
 - jobs can return status and possibly data: RETRY=1xx, OK=2xx, FAILED=4xx, ERROR=5xx.
