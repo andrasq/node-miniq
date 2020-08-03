@@ -117,7 +117,7 @@ module.exports = {
     'getRunningJobIds': {
         'returns ids of running jobs': function(t) {
             var uut = this.uut;
-            uut.runJobs('type1', [{ id: 1, data: 'test1' }, { id: 2, data: 'test2' }], { body: this.makeUrl('/echo') }, function() {})
+            uut.runJobs('type1', [{ id: 1, data: 'test1' }, { id: 2, data: 'test2' }], { body: this.makeUrl('/echo') }, t.ifError);
             setTimeout(function() {
                 uut.getRunningJobIds(function(err, ids) {
                     t.deepEqual(ids, [1, 2]);
@@ -141,7 +141,7 @@ module.exports = {
     'runJobs': {
         'makes an http call': function(t) {
             var self = this;
-            this.uut.runJobs('type1', [{ id: 1, data: 'test1' }], { body: this.makeUrl('/echo') }, function(){});
+            this.uut.runJobs('type1', [{ id: 1, data: 'test1' }], { body: this.makeUrl('/echo') }, t.ifError);
             setTimeout(function() {
                 t.equal(self.httpCalls.body[0], 'test1\n');
                 t.done();
@@ -150,8 +150,8 @@ module.exports = {
 
         'returns stopped jobs': function(t) {
             var self = this;
-            this.uut.runJobs('type2', [{ id: 1, data: 'test21' }], { body: this.makeUrl('/sleep?sleepMs=5') }, function(){});
-            this.uut.runJobs('type2', [{ id: 2, data: 'test22' }], { body: this.makeUrl('/sleep?sleepMs=15') }, function(){});
+            this.uut.runJobs('type2', [{ id: 1, data: 'test21' }], { body: this.makeUrl('/sleep?sleepMs=5') }, t.ifError);
+            this.uut.runJobs('type2', [{ id: 2, data: 'test22' }], { body: this.makeUrl('/sleep?sleepMs=15') }, t.ifError);
             setTimeout(function() {
                 self.uut.getStoppedJobs(10, function(err, jobs) {
                     t.ifError(err);
@@ -174,7 +174,7 @@ module.exports = {
             var self = this;
             var jobs = [];
             for (var i = 0; i < ncalls; i++) jobs.push({ id: i, data: 'test-' + utils.pad(String(i), 6) });
-            this.uut.runJobs('type-k', jobs, { body: this.makeUrl('/echo') }, function(){});
+            this.uut.runJobs('type-k', jobs, { body: this.makeUrl('/echo') }, t.ifError);
             utils.repeatUntil(function(done) {
                 if (self.httpCalls.count < ncalls) return setTimeout(done, 2);
                 setTimeout(done, 10, true);
@@ -201,7 +201,7 @@ module.exports = {
         'errors': {
             'converts an http error to 500': function(t) {
                 var uut = this.uut;
-                uut.runJobs('type-E', [{ id: 99, data: 'test-E1' }], { body: 'http://localhost:1338/echo' }, function(){});
+                uut.runJobs('type-E', [{ id: 99, data: 'test-E1' }], { body: 'http://localhost:1338/echo' }, t.ifError);
                 setTimeout(function() {
                     uut.getStoppedJobs(10, function(err, jobs) {
                         t.ifError(err);
@@ -215,7 +215,7 @@ module.exports = {
 
             'converts an http timeout to 500': function(t) {
                 var uut = new HttpRunner({ jobTimeoutMs: 10 });
-                uut.runJobs('type-E', [{ id: 99, data: 'test-E1' }], { body: this.makeUrl('/sleep?sleepMs=100') }, function() {});
+                uut.runJobs('type-E', [{ id: 99, data: 'test-E1' }], { body: this.makeUrl('/sleep?sleepMs=100') }, t.ifError);
                 setTimeout(function() {
                     uut.getStoppedJobs(10, function(err, jobs) {
                         t.ifError(err);
