@@ -504,7 +504,7 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
         'annotates an existing error': function(t) {
             var err = new Error('test-error2');
             var fields = { code: 'CODE_TWO', a: 123.5 }
-            var err2 = utils.makeError(_assign({ err: err }, fields));
+            var err2 = utils.makeError(_assign({ error: err }, fields));
             t.equal(err2, err);
             t.contains(err2, fields);
             t.done();
