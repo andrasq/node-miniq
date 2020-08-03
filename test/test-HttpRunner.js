@@ -143,7 +143,7 @@ module.exports = {
             var self = this;
             this.uut.runJobs('type1', [{ id: 1, data: 'test1' }], { body: this.makeUrl('/echo') }, function(){});
             setTimeout(function() {
-                t.equal(self.httpCalls.body[0], 'test1');
+                t.equal(self.httpCalls.body[0], 'test1\n');
                 t.done();
             }, 20);
         },
