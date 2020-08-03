@@ -187,10 +187,10 @@ module.exports = {
                     t.ifError(err);
                     t.equal(jobs.length, 10);
                     console.log("AR: fastest call: %d ms", Math.min.apply(Math, utils.selectField(jobs, 'duration')));
-                    console.log("AR: slowest call: %d ms", Math.max.apply(Math, utils.selectField(jobs, 'duration')));
                     t.equal(jobs[0].id, 0);
                     self.uut.getStoppedJobs(1e6, function(err, jobs) {
                         t.ifError(err);
+                        console.log("AR: slowest call: %d ms", Math.max.apply(Math, utils.selectField(jobs, 'duration')));
                         t.equal(jobs.length, ncalls - 10);
                         t.done();
                     })
