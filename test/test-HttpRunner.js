@@ -30,10 +30,41 @@ module.exports = {
                     res.end('ERROR: readBody');
                 }
                 else {
+                    function batchResponse( lines, size, res ) {
+                        // send back 200 status for the first size job lines
+                        var responseLines = [];
+                        for (var i = 0; i < size; i++) {
+                            responseLines[i] = '200 ' + lines[i] + '\n' + '# ' + lines[i] + '\n';
+                        }
+                        res.end(responseLines.join(''));
+                    }
+                    function badResponse( lines, size, res ) {
+                        // send back 200 status for each job until size, then an invalid line, then more valid responses
+                        self.httpCalls.count += lines.length - 1;
+                        var responseLines = [];
+                        for (var i = 0; i < lines.length; i++) responseLines[i] = '200\n';
+                        responseLines[size] = 'some invalid response that does not begin with a number\n';
+                        res.end(responseLines.join(''));
+                    }
+
                     self.httpCalls.body.push(String(requestBody));
                     switch (req.url) {
                     case '/echo':
                         res.end(JSON.stringify(params));
+                        break;
+                    case '/batchEcho':
+                        var lines = String(req.body).split('\n').slice(0, -1);
+                        self.httpCalls.count += lines.length - 1;
+                        batchResponse(lines, lines.length, res);
+                        break;
+                    case '/halfBatch':
+                        var lines = String(req.body).split('\n').slice(0, -1);
+                        self.httpCalls.count += lines.length - 1;
+                        batchResponse(lines, params.size, res);
+                        break;
+                    case '/badBatch':
+                        var lines = String(req.body).split('\n').slice(0, -1);
+                        badResponse(lines, params.size, res);
                         break;
                     case '/sleep':
                         setTimeout(function() { res.end() }, params.sleepMs);
@@ -174,6 +205,7 @@ module.exports = {
             var self = this;
             var jobs = [];
             for (var i = 0; i < ncalls; i++) jobs.push({ id: i, data: 'test-' + utils.pad(String(i), 6) });
+            var startMs = Date.now();
             this.uut.runJobs('type-k', jobs, { body: this.makeUrl('/echo') }, t.ifError);
             utils.repeatUntil(function(done) {
                 if (self.httpCalls.count < ncalls) return setTimeout(done, 2);
@@ -186,12 +218,41 @@ module.exports = {
                     // node-v10: 13k /echo jobs/sec 10k (6k/s 1k)
                     t.ifError(err);
                     t.equal(jobs.length, 10);
-                    console.log("AR: fastest call: %d ms", Math.min.apply(Math, utils.selectField(jobs, 'duration')));
                     t.equal(jobs[0].id, 0);
                     self.uut.getStoppedJobs(1e6, function(err, jobs) {
                         t.ifError(err);
-                        console.log("AR: slowest call: %d ms", Math.max.apply(Math, utils.selectField(jobs, 'duration')));
+                        var doneMs = Date.now();
+                        var leastMs = Math.min.apply(Math, utils.selectField(jobs, 'duration'));
+                        var mostMs = Math.max.apply(Math, utils.selectField(jobs, 'duration'));
+                        console.log("AR: total for %d individual jobs: %d ms (jobs each took %d-%d ms)", ncalls, Date.now() - startMs, leastMs, mostMs);
                         t.equal(jobs.length, ncalls - 10);
+                        t.done();
+                    })
+                })
+            })
+        },
+
+        'runs batch of many jobs': function(t) {
+            var ncalls = 1000;
+            var self = this;
+            var jobs = [];
+            for (var i = 0; i < ncalls; i++) jobs.push({ id: i, data: 'test-' + utils.pad(String(i), 6) });
+            var startMs = Date.now();
+            this.uut.runJobs('type-k', jobs, { body: this.makeUrl('/batchEcho'), options: { batch: true } }, function(err) {
+                t.ifError(err);
+                // jobs are off and running, wait for them to complete
+                utils.repeatUntil(function(done) {
+                    if (self.httpCalls.count < ncalls) return setTimeout(done, 2);
+                    setTimeout(done, 10, true);
+                }, function() {
+                    t.equal(self.httpCalls.count, ncalls);
+                    self.uut.getStoppedJobs(ncalls, function(err, jobs) {
+                        // node-v10: 110k /batchEcho jobs/sec 10k (71k/s 1k, 50k/s 100, 10k/s 10)
+                        t.ifError(err);
+                        t.equal(jobs.length, ncalls);
+                        t.equal(jobs[0].exitcode, 200);
+                        // console.log("AR: avg per-job duration: %d ms", jobs[0].duration);
+                        console.log("AR: total for batch of %d jobs: %d ms (jobs took %d ms avg each)", ncalls, Date.now() - startMs, jobs[0].duration);
                         t.done();
                     })
                 })
@@ -225,6 +286,64 @@ module.exports = {
                         t.done();
                     })
                 }, 10)
+            },
+        },
+
+        'batch errors': {
+            'errors out batch jobs without a response': function(t) {
+                var uut = this.uut;
+                var jobs = [];
+                for (var i = 0; i < 6; i++) jobs.push({ id: String(i), data: String(i) });
+                uut.runJobs('type-B', jobs, { body: this.makeUrl('/halfBatch?size=2'), options: { batch: true } }, function(err) {
+                    t.ifError(err);
+                    setTimeout(function() {
+                        uut.getStoppedJobs(100, function(err, jobs) {
+                            t.ifError(err);
+                            t.equal(jobs.length, 6);
+                            t.deepEqual(jobs.map(function(j) { return j.exitcode }), [200, 200, 500, 500, 500, 500]);
+                            t.deepEqual(jobs.map(function(j) { return j.code }), [
+                                undefined, undefined, 'NO_RESPONSE', 'NO_RESPONSE', 'NO_RESPONSE', 'NO_RESPONSE']);
+                            t.done();
+                        })
+                    }, 10)
+                })
+            },
+
+            'errors out batch jobs after an invalid response': function(t) {
+                var uut = this.uut;
+                var jobs = [];
+                for (var i = 0; i < 4; i++) jobs.push({ id: String(i), data: String(i) });
+                uut.runJobs('type-B', jobs, { body: this.makeUrl('/badBatch?size=2'), options: { batch: true } }, function(err) {
+                    t.ifError(err);
+                    setTimeout(function() {
+                        uut.getStoppedJobs(100, function(err, jobs) {
+                            t.ifError(err);
+                            t.equal(jobs.length, 4);
+                            t.deepEqual(jobs.map(function(j) { return j.exitcode }), [200, 200, 500, 500]);
+                            t.deepEqual(jobs.map(function(j) { return j.code }), [undefined, undefined, 'INVALID_RESPONSE', 'INVALID_RESPONSE']);
+                            t.done();
+                        })
+                    }, 10)
+                })
+            },
+
+            'errors out all jobs in batch on a request error': function(t) {
+                function noop(){};
+                var uut = this.uut;
+                var jobs = [];
+                for (var i = 0; i < 4; i++) jobs.push({ id: String(i), data: String(i) });
+                t.stub(uut, 'microreq').yields(new Error('mock request error')).returns({ write: noop, end: noop });
+                uut.runJobs('type-B', jobs, { body: this.makeUrl('/batchEcho'), options: { batch: true } }, function(err) {
+                    setTimeout(function() {
+                        uut.getStoppedJobs(100, function(err, jobs) {
+                            t.ifError(err);
+                            t.equal(jobs.length, 4);
+                            t.deepEqual(jobs.map(function(j) { return j.exitcode }), [500, 500, 500, 500]);
+                            t.deepEqual(jobs.map(function(j) { return j.code }), ['BATCH_ERROR', 'BATCH_ERROR', 'BATCH_ERROR', 'BATCH_ERROR']);
+                            t.done();
+                        })
+                    }, 10)
+                })
             },
         },
     },
