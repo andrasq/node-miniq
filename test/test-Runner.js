@@ -30,5 +30,27 @@ module.exports = {
                 t.done();
             })
         },
+
+        'options': {
+            'sets log': function(t) {
+                var log = {};
+                var uut = new Runner({ log: log });
+                t.equal(uut.log, log);
+                t.done();
+            },
+
+            'uses a default log': function(t) {
+                var uut = new Runner();
+                t.equal(typeof uut.log, 'object');
+                t.equal(typeof uut.log.info, 'function');
+                t.done();
+            },
+
+            'sets jobTimeoutMs': function(t) {
+                var uut = new Runner({ jobTimeoutMs: 1234 });
+                t.equal(uut._jobTimeoutMs, 1234);
+                t.done();
+            },
+        },
     }
 }
