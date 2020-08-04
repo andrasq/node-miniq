@@ -93,6 +93,26 @@ module.exports = {
         },
     },
 
+    'makeNoopLogger': {
+        'returns a logger': function(t) {
+            var uut = utils.makeNoopLogger();
+            var log = utils.makeLogger('id');
+            for (var method in log) {
+                if (typeof log[method] === 'function') t.equal(typeof uut[method], 'function');
+            }
+            t.done();
+        },
+
+        'logger does not log': function(t) {
+            var log = utils.makeNoopLogger();
+            var spy = t.spy(process.stdout, 'write');
+            log.error('should not show');
+            t.ok(!spy.called);
+            spy.restore();
+            t.done();
+        },
+    },
+
     'selectField': {
         'returns array with selected field': function(t) {
             t.deepEqual(utils.selectField([], 'a'), []);
