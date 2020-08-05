@@ -30,7 +30,7 @@ module.exports = {
                     res.end('ERROR: readBody');
                 }
                 else {
-                    function batchResponse( lines, size, res ) {
+                    var batchResponse = function( lines, size, res ) {
                         // send back 200 status for the first size job lines
                         var responseLines = [];
                         for (var i = 0; i < size; i++) {
@@ -38,7 +38,7 @@ module.exports = {
                         }
                         res.end(responseLines.join(''));
                     }
-                    function badResponse( lines, size, res ) {
+                    var badResponse = function( lines, size, res ) {
                         // send back 200 status for each job until size, then an invalid line, then more valid responses
                         self.httpCalls.count += lines.length - 1;
                         var responseLines = [];
