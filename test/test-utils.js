@@ -650,7 +650,7 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
 
     'keysOf': {
         'returns the own property names of the object': function(t) {
-            t.deepEqual(utils.keysOf(false), []);
+            t.deepEqual(utils.keysOf({a:1, b:2}), ['a', 'b']);
             t.deepEqual(utils.keysOf({}), []);
             t.deepEqual(utils.keysOf(new Date()), []);
             var x = new Date();
