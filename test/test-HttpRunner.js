@@ -238,7 +238,7 @@ module.exports = {
 
         'runs batch of many jobs': function(t) {
             var ncalls = 1000;
-            var waitMs = 20;
+            var waitMs = 50;
             var self = this;
             var jobs = [];
             for (var i = 0; i < ncalls; i++) jobs.push({ id: i, data: 'test-' + utils.pad(String(i), 6) });
