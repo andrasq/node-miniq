@@ -204,14 +204,16 @@ module.exports = {
 
         'runs many jobs': function(t) {
             var ncalls = 1000;
+            var waitMs = 40;
             var self = this;
             var jobs = [];
             for (var i = 0; i < ncalls; i++) jobs.push({ id: i, data: 'test-' + utils.pad(String(i), 6) });
             var startMs = Date.now();
             this.uut.runJobs('type-k', jobs, { body: this.makeUrl('/echo') }, t.ifError);
             utils.repeatUntil(function(done) {
-                if (self.httpCalls.count < ncalls) return setTimeout(done, 2);
-                setTimeout(done, 10, true);
+                if (self.httpCalls.count < ncalls) return setTimeout(done, 1);
+                // wait 40 ms after the last response to be returned
+                setTimeout(done, waitMs, true);
             }, function() {
                 t.equal(self.httpCalls.count, ncalls);
                 // cannot rely on call order, node-v0.8.28 runs them out of order
@@ -219,14 +221,14 @@ module.exports = {
                 self.uut.getStoppedJobs(10, function(err, jobs1) {
                     t.ifError(err);
                     self.uut.getStoppedJobs(1e6, function(err, jobs2) {
+                        var doneMs = Date.now() - waitMs;
                         t.ifError(err);
-                        var doneMs = Date.now();
                         t.equal(jobs1.length, 10);
                         t.equal(jobs1[0].id, 0);
                         t.equal(jobs2.length, ncalls - 10);
                         var leastMs = Math.min.apply(Math, utils.selectField(jobs1, 'duration'));
                         var mostMs = Math.max.apply(Math, utils.selectField(jobs2, 'duration'));
-                        console.log("AR: total for %d individual jobs: %d ms (jobs each took %d-%d ms)", ncalls, Date.now() - startMs, leastMs, mostMs);
+                        console.log("AR: total for %d individual jobs: %d ms (jobs each took %d-%d ms)", ncalls, doneMs - startMs, leastMs, mostMs);
                         // node-v10: 12.6k /echo jobs/sec 10k (5.5k/s 1k)
                         t.done();
                     })
@@ -236,6 +238,7 @@ module.exports = {
 
         'runs batch of many jobs': function(t) {
             var ncalls = 1000;
+            var waitMs = 20;
             var self = this;
             var jobs = [];
             for (var i = 0; i < ncalls; i++) jobs.push({ id: i, data: 'test-' + utils.pad(String(i), 6) });
@@ -244,16 +247,17 @@ module.exports = {
                 t.ifError(err);
                 // jobs are off and running, wait for them to complete
                 utils.repeatUntil(function(done) {
-                    if (self.httpCalls.count < ncalls) return setTimeout(done, 2);
-                    setTimeout(done, 10, true);
+                    if (self.httpCalls.count < ncalls) return setTimeout(done, 1);
+                    setTimeout(done, waitMs, true);
                 }, function() {
                     t.equal(self.httpCalls.count, ncalls);
                     self.uut.getStoppedJobs(ncalls, function(err, jobs) {
+                        var doneMs = Date.now() - waitMs;
                         t.ifError(err);
                         t.equal(jobs.length, ncalls);
                         t.equal(jobs[0].exitcode, 200);
-                        console.log("AR: total for batch of %d jobs: %d ms (jobs took %d ms avg each)", ncalls, Date.now() - startMs, jobs[0].duration);
-                        // node-v10: 125-140k /batchEcho jobs/sec 10k (65k/s 1k, 8k/s 100, 1k/s 10)
+                        console.log("AR: total for batch of %d jobs: %d ms (jobs took %d ms avg each)", ncalls, doneMs - startMs, jobs[0].duration);
+                        // node-v10: 165k /batchEcho jobs/sec 10k (70-200k/s 1k)
                         t.done();
                     })
                 })
