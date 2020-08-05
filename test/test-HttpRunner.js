@@ -214,18 +214,18 @@ module.exports = {
                 t.equal(self.httpCalls.count, ncalls);
                 // cannot rely on call order, node-v0.8.28 runs them out of order
                 // t.deepEqual(self.httpCalls.body.slice(0, 3), ['test-000000', 'test-000001', 'test-000002']);
-                self.uut.getStoppedJobs(10, function(err, jobs) {
-                    // node-v10: 13k /echo jobs/sec 10k (6k/s 1k)
+                self.uut.getStoppedJobs(10, function(err, jobs1) {
                     t.ifError(err);
-                    t.equal(jobs.length, 10);
-                    t.equal(jobs[0].id, 0);
-                    self.uut.getStoppedJobs(1e6, function(err, jobs) {
+                    self.uut.getStoppedJobs(1e6, function(err, jobs2) {
                         t.ifError(err);
                         var doneMs = Date.now();
-                        var leastMs = Math.min.apply(Math, utils.selectField(jobs, 'duration'));
-                        var mostMs = Math.max.apply(Math, utils.selectField(jobs, 'duration'));
+                        t.equal(jobs1.length, 10);
+                        t.equal(jobs1[0].id, 0);
+                        t.equal(jobs2.length, ncalls - 10);
+                        var leastMs = Math.min.apply(Math, utils.selectField(jobs1, 'duration'));
+                        var mostMs = Math.max.apply(Math, utils.selectField(jobs2, 'duration'));
                         console.log("AR: total for %d individual jobs: %d ms (jobs each took %d-%d ms)", ncalls, Date.now() - startMs, leastMs, mostMs);
-                        t.equal(jobs.length, ncalls - 10);
+                        // node-v10: 12.6k /echo jobs/sec 10k (5.5k/s 1k)
                         t.done();
                     })
                 })
@@ -247,12 +247,11 @@ module.exports = {
                 }, function() {
                     t.equal(self.httpCalls.count, ncalls);
                     self.uut.getStoppedJobs(ncalls, function(err, jobs) {
-                        // node-v10: 110k /batchEcho jobs/sec 10k (71k/s 1k, 50k/s 100, 10k/s 10)
                         t.ifError(err);
                         t.equal(jobs.length, ncalls);
                         t.equal(jobs[0].exitcode, 200);
-                        // console.log("AR: avg per-job duration: %d ms", jobs[0].duration);
                         console.log("AR: total for batch of %d jobs: %d ms (jobs took %d ms avg each)", ncalls, Date.now() - startMs, jobs[0].duration);
+                        // node-v10: 125-140k /batchEcho jobs/sec 10k (65k/s 1k, 8k/s 100, 1k/s 10)
                         t.done();
                     })
                 })
