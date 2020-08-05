@@ -250,6 +250,7 @@ module.exports = {
                     if (self.httpCalls.count < ncalls) return setTimeout(done, 1);
                     setTimeout(done, waitMs, true);
                 }, function() {
+if (self.httpCalls.count !== ncalls) console.log("AR: wrong num calls", self.httpCalls.calls.slice(0, 5), self.httpCalls.calls.slice(-5));
                     t.equal(self.httpCalls.count, ncalls);
                     self.uut.getStoppedJobs(ncalls, function(err, jobs) {
                         var doneMs = Date.now() - waitMs;
