@@ -271,7 +271,7 @@ module.exports = {
                         t.equal(jobs[0].code, 'ECONNREFUSED');
                         t.done();
                     })
-                }, 5)
+                }, 10)
             },
 
             'converts an http timeout to 500': function(t) {
