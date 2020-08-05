@@ -174,7 +174,9 @@ module.exports = {
             var self = this;
             this.uut.runJobs('type1', [{ id: 1, data: 'test1' }], { body: this.makeUrl('/echo') }, t.ifError);
             setTimeout(function() {
-                t.equal(self.httpCalls.body[0], 'test1\n');
+                // allow responses to arrive out of order (eg node-v0.8)
+                t.ok(/^test[12]\n$/.test(self.httpCalls.body[0]));
+                t.ok(/^test[12]\n$/.test(self.httpCalls.body[1]));
                 t.done();
             }, 20);
         },
