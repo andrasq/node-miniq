@@ -206,7 +206,7 @@ module.exports = {
                     t.ifError(err);
                     t.equal(jobs.length, 1);
                     t.equal(jobs[0].id, 2);
-                    t.done();
+                    self.waitForCalls(2, t.done);
                 })
             }, 22);
         },
