@@ -24,7 +24,6 @@ module.exports = {
                 req.url = req.url.slice(0, qq);
             }
             var body = microMw.mwReadBody(req, res, function(err, ctx, requestBody) {
-                self.httpCalls.count += 1;
                 if (err) {
                     res.statusCode(500);
                     res.end('ERROR: readBody');
@@ -71,6 +70,7 @@ module.exports = {
                         break;
                     }
                 }
+                self.httpCalls.count += 1;
             })
         })
         this.httpServer.listen(1337, done);
