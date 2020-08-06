@@ -88,7 +88,11 @@ module.exports = {
         this.httpCalls.body = [];
         this.uut = new HttpRunner();
 
-        this.httpServer.listen(this.httpPort, done);
+        var self = this;
+        (function tryListen() {
+            try { self.httpServer.listen(self.httpPort, done) }
+            catch (err) { if (err.code === 'EADDRINUSE') setTimeout(tryListen, 1); else throw err }
+        })();
     },
 
     afterEach: function(done) {
