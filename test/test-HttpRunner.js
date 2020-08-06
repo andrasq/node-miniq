@@ -40,7 +40,6 @@ module.exports = {
                     }
                     var badResponse = function( lines, size, res ) {
                         // send back 200 status for each job until size, then an invalid line, then more valid responses
-                        self.httpCalls.count += lines.length - 1;
                         var responseLines = [];
                         for (var i = 0; i < lines.length; i++) responseLines[i] = '200\n';
                         responseLines[size] = 'some invalid response that does not begin with a number\n';
@@ -54,12 +53,10 @@ module.exports = {
                         break;
                     case '/batchEcho':
                         var lines = String(req.body).split('\n').slice(0, -1);
-                        self.httpCalls.count += lines.length - 1;
                         batchResponse(lines, lines.length, res);
                         break;
                     case '/halfBatch':
                         var lines = String(req.body).split('\n').slice(0, -1);
-                        self.httpCalls.count += lines.length - 1;
                         batchResponse(lines, params.size, res);
                         break;
                     case '/badBatch':
@@ -212,7 +209,7 @@ module.exports = {
             this.uut.runJobs('type-k', jobs, { body: this.makeUrl('/echo') }, t.ifError);
             utils.repeatUntil(function(done) {
                 if (self.httpCalls.count < ncalls) return setTimeout(done, 1);
-                // wait 40 ms after the last response to be returned
+                // allow 40 ms for the last response to be returned
                 setTimeout(done, waitMs, true);
             }, function() {
                 t.equal(self.httpCalls.count, ncalls);
@@ -221,6 +218,7 @@ module.exports = {
                 self.uut.getStoppedJobs(10, function(err, jobs1) {
                     t.ifError(err);
                     self.uut.getStoppedJobs(1e6, function(err, jobs2) {
+if (self.httpCalls.count !== ncalls) console.log("AR: wrong num calls", self.httpCalls.count, self.httpCalls.body.slice(0, 5), self.httpCalls.body.slice(-5));
                         var doneMs = Date.now() - waitMs;
                         t.ifError(err);
                         t.equal(jobs1.length, 10);
@@ -237,6 +235,7 @@ module.exports = {
         },
 
         'runs batch of many jobs': function(t) {
+// FIXME: this test overlapped with previous test! first 5 call bodies contained previous calls plus our entire 1000-line batch!
             var ncalls = 1000;
             var waitMs = 50;
             var self = this;
@@ -247,16 +246,14 @@ module.exports = {
                 t.ifError(err);
                 // jobs are off and running, wait for them to complete
                 utils.repeatUntil(function(done) {
-                    if (self.httpCalls.count < ncalls) return setTimeout(done, 1);
+                    if (self.httpCalls.count < 1) return setTimeout(done, 1);
                     setTimeout(done, waitMs, true);
                 }, function() {
-if (self.httpCalls.count !== ncalls) console.log("AR: wrong num calls", self.httpCalls.body.slice(0, 5), self.httpCalls.body.slice(-5));
-                    t.equal(self.httpCalls.count, ncalls);
+if (self.httpCalls.count !== 1) console.log("AR: wrong num calls", self.httpCalls.count, self.httpCalls.body.slice(0, 5), self.httpCalls.body.slice(-5));
                     self.uut.getStoppedJobs(ncalls, function(err, jobs) {
                         var doneMs = Date.now() - waitMs;
                         t.ifError(err);
-                        t.equal(jobs.length, ncalls);
-                        t.equal(jobs[0].exitcode, 200);
+                        for (var i = 0; i < jobs.length; i++) t.equal(jobs[i].exitcode, 200);
                         console.log("AR: total for batch of %d jobs: %d ms (jobs took %d ms avg each)", ncalls, doneMs - startMs, jobs[0].duration);
                         // node-v10: 165k /batchEcho jobs/sec 10k (70-200k/s 1k)
                         t.done();
