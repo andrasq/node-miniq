@@ -69,7 +69,7 @@ module.exports = {
                 })
             },
 
-            'should save handler fields': function(t) {
+            'saves handler fields': function(t) {
 t.skip();
             },
         },

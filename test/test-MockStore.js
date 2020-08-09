@@ -335,12 +335,12 @@ module.exports = {
     },
 
     'getLockedJobs': {
-        'returns the matching jobs newest first': function(t) {
+        'returns the matching jobs': function(t) {
             this.uut.jobs = [
                 { id: 1, type: 'typeA', dt: new Date(1000), lock: 'x' }, // wrong type
                 { id: 2, type: 'typeB', dt: new Date(1000), lock: 'x' }, // yes
                 { id: 6, type: 'typeB', dt: new Date(1000), lock: 'x' }, // yes
-                { id: 3, type: 'typeB', dt: new Date(1002), lock: 'x' }, // <-- this one first
+                { id: 3, type: 'typeB', dt: new Date(1002), lock: 'x' }, // yes
                 { id: 7, type: 'typeB', dt: new Date(1001), lock: 'x' }, // yes
                 { id: 4, type: 'typeA', dt: new Date(1001), lock: 'x' }, // wrong type
                 { id: 5, type: 'typeB', dt: new Date(1003), lock: 'y' }, // wrong lock
@@ -348,13 +348,9 @@ module.exports = {
             this.uut.getLockedJobs('typeB', 'x', 100, function(err, jobs) {
                 t.ifError(err);
                 t.equal(jobs.length, 4);
-                t.contains(jobs[0], { id: 3, type: 'typeB', lock: 'x' });
-                t.contains(jobs[1], { id: 7, type: 'typeB', lock: 'x' });
-                t.contains(jobs[2], { type: 'typeB', lock: 'x' });
-                t.contains(jobs[3], { type: 'typeB', lock: 'x' });
-                t.contains([2, 6], jobs[2].id);
-                t.contains([2, 6], jobs[3].id);
+                t.deepEqual(jobs.sort(_byId).map(function(a) { return a.id }), [2, 3, 6, 7]);
                 t.done();
+                function _byId(a, b) { return a.id <= b.id ? -1 : 1 }
             })
         },
     },
