@@ -215,7 +215,8 @@ module.exports = {
             utils.getNewerTimestamp();
             for (var ts, now, i = 0; i < 1000000; i++) {
                 if (i % 100 === 0) now = Date.now();
-                t.within((ts = utils.getNewerTimestamp(0)), now, 10, util.format("i = %d, now-ts = %d", i, now - ts));
+                // slower PCs might see lantencies > 10ms, so test for 20
+                t.within((ts = utils.getNewerTimestamp(0)), now, 20, util.format("i = %d, now-ts = %d", i, now - ts));
             }
             t.done();
         },
