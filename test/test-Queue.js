@@ -45,7 +45,8 @@ module.exports = {
 
         'sets a default sysid': function(t) {
             var uut = new Queue(null,
-                new JournalArray(), new SchedulerRandom(), new MockStore(), new MockStore(), new MockRunner(), utils.makeLogger(''));
+                new JournalArray(), new SchedulerRandom(), new MockStore(), new HandlerStore(new MockStore()),
+                new MockRunner(), utils.makeLogger(''));
             t.equal(typeof uut.sysid, 'string');
             t.ok(uut.sysid.length > 0);
             t.done();
