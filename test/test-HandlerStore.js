@@ -73,5 +73,11 @@ module.exports = {
 t.skip();
             },
         },
+
+        'deleteHandler': {
+            'removes the named handlers from the store': function(t) {
+t.skip();
+            },
+        },
     },
 }
