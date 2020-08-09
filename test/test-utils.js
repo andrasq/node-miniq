@@ -1,5 +1,6 @@
 'use strict';
 
+var util = require('util');
 var fs = require('fs');
 var utils = require('../lib/utils');
 
@@ -212,9 +213,9 @@ module.exports = {
         'returns a current-ish timestamp': function(t) {
             // prime this function, is off by 100ms on first call
             utils.getNewerTimestamp();
-            for (var now, i = 0; i < 1000000; i++) {
+            for (var ts, now, i = 0; i < 1000000; i++) {
                 if (i % 100 === 0) now = Date.now();
-                t.within(utils.getNewerTimestamp(0), now, 10, 'i = ' + i);
+                t.within((ts = utils.getNewerTimestamp(0)), now, 10, util.format("i = %d, now-ts = %d", i, now - ts));
             }
             t.done();
         },
