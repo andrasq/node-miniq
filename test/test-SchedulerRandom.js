@@ -1,11 +1,20 @@
 'use strict';
 
+var testUtils = require('../lib/testUtils');
+var Scheduler = require('../lib/Scheduler');
 var SchedulerRandom = require('../lib/SchedulerRandom');
 
 module.exports = {
     beforeEach: function(done) {
         this.cut = new SchedulerRandom({ gcIntervalMs: 5 });
         done();
+    },
+
+    'constructor': {
+        'implements Scheduler': function(t) {
+            t.ok(testUtils.implements(new SchedulerRandom(), Scheduler));
+            t.done();
+        },
     },
 
     'selectJobtypeToRun': {
