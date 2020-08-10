@@ -51,6 +51,25 @@ module.exports = {
             t.ok(uut.sysid.length > 0);
             t.done();
         },
+
+        'requires the right types': function(t) {
+            var journal = new JournalArray();
+            var scheduler = new SchedulerRandom();
+            var store = new MockStore();
+            var handlerStore = new HandlerStore(store);
+            var runner = new MockRunner();
+            var log = utils.makeLogger('module-name');
+
+            new Queue('sysid', journal, scheduler, store, handlerStore, runner, log);
+            t.throws(function() { new Queue('sysid', {}, scheduler, store, handlerStore, runner, log) }, /not a Journal/);
+            t.throws(function() { new Queue('sysid', journal, {}, store, handlerStore, runner, log) }, /not a Scheduler/);
+            t.throws(function() { new Queue('sysid', journal, scheduler, {}, handlerStore, runner, log) }, /not a job Store/);
+            t.throws(function() { new Queue('sysid', journal, scheduler, store, {}, runner, log) }, /not a HandlerStore/);
+            t.throws(function() { new Queue('sysid', journal, scheduler, store, handlerStore, {}, log) }, /not a Runner/);
+            t.throws(function() { new Queue('sysid', journal, scheduler, store, handlerStore, runner, {}) }, /not a log/);
+
+            t.done();
+        },
     },
 
     'ingestJournal': {
