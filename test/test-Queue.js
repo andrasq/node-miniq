@@ -202,6 +202,7 @@ module.exports = {
                 t.ok(spyRenewLocks.called);
                 t.ok(spyExpireLocks.called);
                 t.ok(spyExpireJobs.called);
+                // NOTE: this assertion can fail on slower computers:
                 t.ok(spyStats.callCount >= 3);
                 t.done();
             })

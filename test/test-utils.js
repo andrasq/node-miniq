@@ -409,6 +409,7 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
             this.uut.schedule('200', noop);
             this.uut.schedule('3s', noop);
             t.equal(this.uut.jobs.length, 3);
+            // NOTE: this assertion can fail on slower computers:
             t.ok(this.uut.jobs[0].next > Date.now() + 10-2 && this.uut.jobs[0].next < Date.now() + 10+2);
             t.ok(this.uut.jobs[1].next > Date.now() + 200-2 && this.uut.jobs[1].next < Date.now() + 200+2);
             t.ok(this.uut.jobs[2].next > Date.now() + 3000-2 && this.uut.jobs[2].next < Date.now() + 3000+2);
