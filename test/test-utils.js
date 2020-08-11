@@ -794,17 +794,17 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
     },
 
 /**
-    'KeyedSet': {
+    'KeyValueStore': {
         'fast as a Map': function(t) {
             var x;
 
-            console.time('KeyedSet');
-            var ks = new utils.KeyedSet();
+            console.time('KeyValueStore');
+            var ks = new utils.KeyValueStore();
             for (var i=0; i<200000; i++) ks.set(rand(i), i);
             for (var i=0; i<200000; i++) ks.has(rand(i));
             for (var i=0; i<200000; i++) ks.get(rand(i));
             for (var i=0; i<200000; i++) ks.delete(rand(i));
-            console.timeEnd('KeyedSet');
+            console.timeEnd('KeyValueStore');
 
             if (typeof Map === undefined) return t.done();
 
@@ -821,7 +821,7 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
             function rand(i) { return i * 1001 & 0xFFFFFF }
         },
     },
-**/
+/**/
 
     'toStruct': {
         'returns the struct': function(t) {
