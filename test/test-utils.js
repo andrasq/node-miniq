@@ -737,6 +737,7 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
             var ncalls = 0;
             var timer = utils.setInterval(function(){ ncalls += 1; if (ncalls == 2) timer.unref() }, 4);
             setTimeout(function() {
+                // NOTE: node v14.5.0 on slower computers makes only 4 calls sometimes
                 t.equal(ncalls, 5);
                 timer.stop();
                 setTimeout(function() {
