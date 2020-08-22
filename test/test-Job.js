@@ -20,6 +20,14 @@ module.exports = {
         },
     },
 
+    'getLineId': {
+        'returns id part of journal line': function(t) {
+            t.equal(Job.getLineId('foo|bar|zed'), 'foo');
+            t.equal(Job.getLineId('foobar'), 'foobar');
+            t.done();
+        },
+    },
+
     'linesToJobs': {
         'returns array of jobs': function(t) {
             var job1 = ['12-sysid-023', 'type1', 'data1'];
