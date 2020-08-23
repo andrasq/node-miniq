@@ -23,11 +23,12 @@ module.exports = {
             utils.repeatUntil(function(done) {
                 var line = lineReader.gets();
                 if (line !== undefined) lines.push(line);
-                done(lineReader.error, lineReader.eof);
+                done(lineReader.error, lineReader.isEof());
             }, function(err) {
                 var doneMs = Date.now();
                 t.ifError(err);
-                t.equal(lines.join('\n') + '\n', expect);
+                var contents = lines.join('\n') + '\n';
+                t.equal(contents, expect);
                 console.log("AR: read file %s in %d ms", sourceFile, doneMs - startMs);
                 t.ok(doneMs - startMs < 100);
                 t.done();
