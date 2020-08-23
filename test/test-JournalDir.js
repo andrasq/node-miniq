@@ -9,7 +9,7 @@ module.exports = {
     'makeLineReader': {
         'returns a lineReader': function(t) {
             var lineReader = JournalDir.makeLineReader(__filename);
-            t.equal(typeof lineReader.fgets, 'function');
+            t.equal(typeof lineReader.gets, 'function');
             t.equal(typeof lineReader.flush, 'function');
             t.done();
         },
@@ -21,7 +21,7 @@ module.exports = {
             var lineReader = JournalDir.makeLineReader(sourceFile);
             var startMs = Date.now();
             utils.repeatUntil(function(done) {
-                var line = lineReader.fgets();
+                var line = lineReader.gets();
                 if (line !== undefined) lines.push(line);
                 done(lineReader.error, lineReader.eof);
             }, function(err) {
