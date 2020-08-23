@@ -794,6 +794,17 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
         },
     },
 
+    'offsetOf': {
+        'finds offset of value': function(t) {
+            t.equal(utils.offsetOf([], 1, 0, 1), -1);
+            t.equal(utils.offsetOf([2], 1, 0, 1), -1);
+            t.equal(utils.offsetOf([1], 1, 0, 1), 0);
+            t.equal(utils.offsetOf([2, 1], 1, 0, 2), 1);
+            t.equal(utils.offsetOf([1, 2, 3, 1, 2, 3], 1, 1, 6), 3);
+            t.done();
+        },
+    },
+
 /**
     'KeyValueStore': {
         'fast as a Map': function(t) {
