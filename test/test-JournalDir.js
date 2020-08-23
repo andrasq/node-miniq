@@ -19,12 +19,14 @@ module.exports = {
             var expect = fs.readFileSync(sourceFile);
             var lines = [];
             var lineReader = JournalDir.makeLineReader(sourceFile);
+
             var startMs = Date.now();
             utils.repeatUntil(function(done) {
                 var line = lineReader.gets();
                 if (line !== undefined) lines.push(line);
                 done(lineReader.error, lineReader.isEof());
-            }, function(err) {
+            },
+            function(err) {
                 var doneMs = Date.now();
                 t.ifError(err);
                 var contents = lines.join('\n') + '\n';
