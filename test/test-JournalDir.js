@@ -5,6 +5,7 @@ var utils = require('../lib/utils');
 var JournalDir = require('../lib/JournalDir');
 
 module.exports = {
+// FIXME: move into test-fileUtils.js
     'makeLineReader': {
         'returns a lineReader': function(t) {
             var lineReader = JournalDir.makeLineReader(__filename);
