@@ -806,6 +806,35 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
     },
 
     'waitWhile': {
+        'returns immediately if not busy': function(t) {
+            var t1 = Date.now();
+            utils.waitWhile(function() { return false }, 100, function(err) {
+                var t2 = Date.now();
+                t.ok(t2 - t1 <= 1);
+                t.done();
+            })
+        },
+        'waits until not busy': function(t) {
+            var busy = true;
+            var t1 = Date.now();
+            setTimeout(function() { busy = false }, 10);
+            utils.waitWhile(function() { return busy }, 100, function(err) {
+                var t2 = Date.now();
+                // allow for the occasional nodejs off-by-1-ms
+                t.ok(t2 - t1 >= 10 - 1);
+                t.done();
+            })
+        },
+        'returns error if timeout': function(t) {
+            var t1 = Date.now();
+            utils.waitWhile(function() { return true }, 5, function(err) {
+                var t2 = Date.now();
+                t.ok(err);
+                t.contains(err.message, 'wait timeout:');
+                t.ok(t2 - t1 <= 6);
+                t.done();
+            })
+        },
     },
 
 /**
