@@ -805,6 +805,9 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
         },
     },
 
+    'waitWhile': {
+    },
+
 /**
     'KeyValueStore': {
         'fast as a Map': function(t) {

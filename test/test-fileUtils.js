@@ -18,9 +18,6 @@ module.exports = {
         t.done();
     },
 
-    'waitWhile': {
-    },
-
     'makeLineReader': {
         'returns a lineReader': function(t) {
             var lineReader = fileUtils.makeLineReader(__filename);
