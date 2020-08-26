@@ -93,17 +93,17 @@ module.exports = {
     'concatFiles concatenates and removes files': function(t) {
         var self = this;
         var pid = process.pid;
-        var names = ['t1.' + pid, 't2.' + pid, 't3.' + pid];
-        var targetpath = '/tmp/tt.' + pid;
-        fs.writeFileSync('/tmp/t1.' + pid, 'line1\n');
-        fs.writeFileSync('/tmp/t2.' + pid, 'line2\n');
-        fs.writeFileSync('/tmp/t3.' + pid, 'line3\n');
+        var names = ['qtest1.' + pid, 'qtest2.' + pid, 'qtest3.' + pid];
+        var targetpath = '/tmp/qtestt.' + pid;
+        fs.writeFileSync('/tmp/qtest1.' + pid, 'line1\n');
+        fs.writeFileSync('/tmp/qtest2.' + pid, 'line2\n');
+        fs.writeFileSync('/tmp/qtest3.' + pid, 'line3\n');
         fileUtils.concatFiles(targetpath, '/tmp', names, function(err) {
             t.ifError(err);
             t.equal(fs.readFileSync(targetpath), 'line1\nline2\nline3\n');
-            t.ok(!fileUtils.fileExists('/tmp/t1.' + pid));
-            t.ok(!fileUtils.fileExists('/tmp/t2.' + pid));
-            t.ok(!fileUtils.fileExists('/tmp/t3.' + pid));
+            t.ok(!fileUtils.fileExists('/tmp/qtest1.' + pid));
+            t.ok(!fileUtils.fileExists('/tmp/qtest2.' + pid));
+            t.ok(!fileUtils.fileExists('/tmp/qtest3.' + pid));
             fs.unlinkSync(targetpath);
             t.done();
         })
