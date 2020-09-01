@@ -36,7 +36,7 @@ module.exports = {
             utils.repeatUntil(function(done) {
                 var line = lineReader.gets();
                 if (line !== undefined) lines.push(line);
-                done(lineReader.error, lineReader.isEof());
+                done(lineReader.error, lineReader.eof || lineReader.error);
             },
             function(err) {
                 var doneMs = Date.now();
@@ -47,6 +47,31 @@ module.exports = {
                 t.ok(doneMs - startMs < 100);
                 t.done();
             })
+        },
+
+        'can read an empty file': function(t) {
+            var lineReader = fileUtils.makeLineReader('/dev/null');
+            var lineCount = 0;
+            utils.repeatUntil(function(done) {
+                var line = lineReader.gets();
+                if (line !== undefined) lineCount += 1;
+                done(null, lineReader.eof);
+            },
+            function(err, a, b) {
+                t.ifError(err);
+                t.equal(lineCount, 0);
+                t.strictEqual(lineReader.eof, true);
+                t.done();
+            })
+        },
+
+        'reset clears eof': function(t) {
+            var lineReader = fileUtils.makeLineReader('/dev/null');
+            for (var i = 0; i < 100; i++) lineReader.gets();
+            t.ok(lineReader.eof);
+            lineReader.reset();
+            t.ok(!lineReader.eof);
+            t.done();
         },
     },
 
