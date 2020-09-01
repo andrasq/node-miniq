@@ -50,28 +50,49 @@ module.exports = {
         },
 
         'can read an empty file': function(t) {
-            var lineReader = fileUtils.makeLineReader('/dev/null');
-            var lineCount = 0;
-            utils.repeatUntil(function(done) {
-                var line = lineReader.gets();
-                if (line !== undefined) lineCount += 1;
-                done(null, lineReader.eof);
-            },
-            function(err, a, b) {
-                t.ifError(err);
-                t.equal(lineCount, 0);
-                t.strictEqual(lineReader.eof, true);
-                t.done();
-            })
+            utils.iterateSteps([
+                function(next) {
+                    countLines(__filename, function(err, count) {
+                        t.ifError(err);
+                        t.equal(count, fs.readFileSync(__filename).toString().trim().split('\n').length);
+                        next();
+                    })
+                },
+                function(next) {
+                    countLines('/dev/null', function(err, count) {
+                        t.ifError(err);
+                        t.equal(count, 0);
+                        next();
+                    })
+                },
+            ],
+            t.done);
+
+            function countLines(path, callback) {
+                var lineCount = 0;
+                var reader = fileUtils.makeLineReader(path);
+                utils.repeatUntil(function(done) {
+                    var line = reader.gets();
+                    if (line !== undefined) lineCount += 1;
+                    done(null, reader.eof);
+                }, function(err) {
+                    callback(err, lineCount);
+                })
+            }
         },
 
-        'reset clears eof': function(t) {
+        'reopen clears eof': function(t) {
             var lineReader = fileUtils.makeLineReader('/dev/null');
-            for (var i = 0; i < 100; i++) lineReader.gets();
-            t.ok(lineReader.eof);
-            lineReader.reset();
-            t.ok(!lineReader.eof);
-            t.done();
+            utils.repeatUntil(function(done, i) {
+                lineReader.gets();
+                done(null, ++i >= 100);
+            }, function(err) {
+                t.ifError(err);
+                t.ok(lineReader.eof);
+                lineReader.reopen();
+                t.ok(!lineReader.eof);
+                t.done();
+            })
         },
     },
 
