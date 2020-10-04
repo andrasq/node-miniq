@@ -36,14 +36,14 @@ module.exports = {
             utils.repeatUntil(function(done) {
                 var line = lineReader.gets();
                 if (line !== undefined) lines.push(line);
-                done(lineReader.error, lineReader.eof || lineReader.error);
+                done(lineReader.error, lineReader.isEof());
             },
             function(err) {
                 var doneMs = Date.now();
                 t.ifError(err);
                 var contents = lines.join('\n') + '\n';
                 t.equal(contents, expect);
-                console.log("AR: read file %s in %d ms", sourceFile, doneMs - startMs);
+                console.log("AR: read %s in %d ms (%d lines, %d bytes)", sourceFile, doneMs - startMs, lines.length, lineReader.bytesRead);
                 t.ok(doneMs - startMs < 100);
                 t.done();
             })
@@ -74,7 +74,7 @@ module.exports = {
                 utils.repeatUntil(function(done) {
                     var line = reader.gets();
                     if (line !== undefined) lineCount += 1;
-                    done(null, reader.eof);
+                    done(null, reader.isEof());
                 }, function(err) {
                     callback(err, lineCount);
                 })
