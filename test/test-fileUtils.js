@@ -94,6 +94,41 @@ module.exports = {
                 t.done();
             })
         },
+
+        'helpers': {
+            'reopen': {
+                'throws if no stream': function(t) {
+                    t.throws(function() { fileUtils.makeLineReader() });
+                    t.done();
+                },
+
+                'sets error on read error': function(t) {
+                    var lr = fileUtils.makeLineReader('/nonesuch');
+                    utils.repeatUntil(function(done) {
+                        lr.gets();
+                        done(null, lr.isEof());
+                    }, function() {
+                        t.ok(lr.error instanceof Error);
+                        t.equal(lr.error.code, 'ENOENT');
+                        t.done();
+                    })
+                },
+            },
+
+            'flush': {
+                'returns buffered lines': function(t) {
+                    var lr = fileUtils.makeLineReader(__filename);
+                    utils.repeatUntil(function(done) {
+                        if (lr.gets()) {
+                            var lines = lr.flush();
+                            t.ok(lines.length > 0);
+                            done(null, true);
+                        }
+                        else done(null, false);
+                    }, t.done);
+                },
+            },
+        },
     },
 
     'grabFile': {
