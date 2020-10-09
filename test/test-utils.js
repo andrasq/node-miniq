@@ -291,15 +291,16 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
         'can generate many ids singly without duplicates': function(t) {
             var ids = new Array();
             var t1 = Date.now();
+            var count = 500000;
             utils.repeatUntil(function(next) {
-                ids.push(utils.getIds('-mque-', 1)[0]);
-                next(null, ids.length >= 300000);
+                for (var i=0; i<100; i++) ids.push(utils.getId('-mque-'));
+                next(null, ids.length >= count);
             },
             function(err) {
                 var t2 = Date.now();
 console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length / (t2 - t1)) >>> 0);
 
-                t.equal(ids.length, 300000);
+                t.equal(ids.length, count);
                 for (var i = 1; i < ids.length; i++) t.ok(ids[i - 1] < ids[i]);
                 t.done();
             })
