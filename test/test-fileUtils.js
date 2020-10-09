@@ -85,12 +85,15 @@ module.exports = {
             var lineReader = fileUtils.makeLineReader('/dev/null');
             utils.repeatUntil(function(done, i) {
                 lineReader.gets();
-                done(null, ++i >= 100);
+                // on newer node 10 yields to the event loop are not long enough for read() to return eof
+                done(null, ++i >= 1000);
             }, function(err) {
                 t.ifError(err);
-                t.ok(lineReader.eof);
+                t.ok(!lineReader.error);
+                t.ok(lineReader.isEof());
                 lineReader.reopen();
-                t.ok(!lineReader.eof);
+                t.ok(!lineReader.error);
+                t.ok(!lineReader.isEof());
                 t.done();
             })
         },
