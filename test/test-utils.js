@@ -278,11 +278,12 @@ console.log("AR: got ids", ids);
 
         'can generate many ids in one call without duplicates': function(t) {
             var t1 = Date.now();
-            var ids = utils.getIds('-mque-', 300000);
+            var count = 500000;
+            var ids = utils.getIds('-mque-', count);
             var t2 = Date.now();
 console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length / (t2 - t1)) >>> 0);
 
-            t.equal(ids.length, 300000);
+            t.equal(ids.length, count);
             for (var i = 1; i < ids.length; i++) t.ok(ids[i - 1] < ids[i]);
             t.done();
         },
@@ -307,8 +308,8 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
         'correctly rolls sequence just before timetamp change': function(t) {
             utils._configure(function() {
                 // configure the ids to the end of the sequence
+                _idPrefix = '';
                 _idSequence = _idSequenceLimit - 2;
-                _sequencePrefix = encode64(_idSequence >>> 6);
                 _idTimestamp = Date.now() + 20;
             });
             // align to the start of a new millisecond
@@ -753,6 +754,7 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
             timer.unref();
             timer.ref();
             timer.ref();
+            timer.stop();
             t.done();
         },
 
@@ -764,6 +766,7 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
             timer.ref();
             t.ok(spyUnref.called);
             t.ok(spyRef.called);
+            timer.stop();
             t.done();
         },
 
@@ -774,6 +777,7 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
             timer._stopped = true;
             setTimeout(function() {
                 t.ok(!called);
+                timer.stop();
                 t.done();
             }, 10);
         },
@@ -789,6 +793,7 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
             setTimeout(function() {
                 t.ok(stopTime > 0);
                 t.ok(stopTime - startTime >= 10);
+                timer.stop();
                 t.done();
             }, 15);
         },
