@@ -318,7 +318,7 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
             var ids = new Array();
             for (var i = 0; i < 5; i++) ids.push(utils.getId('-sys-'));
 
-            for (var i = 1; i < 5; i++) t.ok(ids[i - 1] < ids[i]);
+            for (var i = 1; i < 5; i++) t.ok(ids[i - 1] < ids[i], ids[i-1] + ' :: ' + ids[i]);
             t.done();
         },
     },
