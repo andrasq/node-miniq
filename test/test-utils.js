@@ -87,7 +87,7 @@ module.exports = {
             stream.write('\n', function(err) {
                 var t2 = Date.now();
                 fs.unlinkSync(tempfile);
-                console.log("AR: wrote 10k log lines in %d ms", t2 - t1);
+console.log("AR: wrote 10k log lines in %d ms", t2 - t1);
                 // ~275k / sec: 100k 200B 1x4-item json objects in .36 sec, 10k in .046 (2x2-item in .42/.057 sec)
                 t.done();
             })
@@ -306,7 +306,7 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
             })
         },
 
-        'correctly rolls sequence just before timetamp change': function(t) {
+        'correctly rolls sequence just before timestamp change': function(t) {
             utils._configure(function() {
                 // configure the ids to the end of the sequence
                 _idPrefix = '';
