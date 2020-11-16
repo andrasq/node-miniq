@@ -37,10 +37,21 @@ module.exports = {
             t.ok(spy.called);
             t.equal(spy.args[0].length, 1);
             var json = JSON.parse(spy.args[0][0]);
-            t.contains(json, {id: 'test-log', message: ['mock error', {a: 123}, '[Circular]']});
             t.ok(new Date(json.time) >= new Date(now));
-            t.contains(spy.args[0][0], '{"a":123}');
-            t.contains(spy.args[0][0], '"[Circular]"');
+            t.contains(spy.args[0][0], '"message":"mock error');
+            t.contains(spy.args[0][0], '"id":"test-log"');
+            t.contains(spy.args[0][0], '123');
+            t.contains(spy.args[0][0], '[Circular]');
+            t.done();
+        },
+
+        'interpolates parameters': function(t) {
+            var output = [];
+            var stream = { write: function(line) { output.push(line) } };
+            var log = utils.makeLogger('test-log', stream);
+            log.info('hello, %s %d', 'world', 123, { x: 42 }, 'other');
+            t.contains(output[0], 'hello, world');
+            t.contains(output[0], '{ x: 42 } other');
             t.done();
         },
 
@@ -56,10 +67,11 @@ module.exports = {
             t.contains(output[0], '"time":"');
             t.contains(output[0], '"type":"INFO"');
             t.contains(output[0], '"id":"test-log"');
-            t.contains(output[0], '"message":["test1"]');
+            t.contains(output[0], '"message":"test1"');
             t.contains(output[1], '"type":"ERROR"');
             t.contains(output[1], '"test2"');
-            t.contains(output[2], '"test3a","test3b"');
+            t.contains(output[2], '"message":"test3a');
+            t.contains(output[2], 'test3b');
             t.done();
         },
 
@@ -104,12 +116,11 @@ console.log("AR: wrote 10k log lines in %d ms", t2 - t1);
             t.done();
         },
 
-        'logger does not log': function(t) {
+        'does not log': function(t) {
             var log = utils.makeNoopLogger();
-            var spy = t.spy(process.stdout, 'write');
+            var spy = t.spyOnce(process.stdout, 'write');
             log.error('should not show');
             t.ok(!spy.called);
-            spy.restore();
             t.done();
         },
     },
