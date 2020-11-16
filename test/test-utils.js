@@ -82,7 +82,7 @@ module.exports = {
             log.debug('will not show');
             t.equal(spy.callCount, 0);
             log.warn('will show');
-            log.log('will also show');
+            log.info('will also %s', 'show');
             spy.restore();
             t.equal(spy.callCount, 2);
             t.done();
