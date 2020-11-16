@@ -867,7 +867,8 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
                 var t2 = Date.now();
                 t.ok(err);
                 t.contains(err.message, 'wait timeout:');
-                t.ok(t2 - t1 <= 6);
+                // FIXME: node-v0.8 occasionally fails with "false is truthy", ie 6 ms not enough
+                t.ok(t2 - t1 <= (utils.versionCompar(process.versions.node, '0.10') >= 0 ? 6 : 8));
                 t.done();
             })
         },
@@ -919,6 +920,36 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
                 release();
                 t.done();
             })
+        },
+    },
+
+    'versionCompar': {
+        'compares versions': function(t) {
+            t.equal(utils.versionCompar('1', '1'), +0);
+            t.equal(utils.versionCompar('1', '2'), -1);
+            t.equal(utils.versionCompar('3', '2'), +1);
+
+            t.equal(utils.versionCompar('1.2', '1.2'), +0);
+            t.equal(utils.versionCompar('1.2', '1.3'), -1);
+            t.equal(utils.versionCompar('2.1', '1.3'), +1);
+            t.equal(utils.versionCompar('1', '1.0'), -1);
+            t.equal(utils.versionCompar('1', '1.1'), -1);
+            t.equal(utils.versionCompar('1.0', '1'), +1);
+            t.equal(utils.versionCompar('1.1', '1'), +1);
+
+            t.equal(utils.versionCompar('1.2.3', '1.2.3'), +0);
+            t.equal(utils.versionCompar('1.2.3', '1.2.4'), -1);
+            t.equal(utils.versionCompar('1.2.4', '1.2.3'), +1);
+            t.equal(utils.versionCompar('1.2.3', '1.4.3'), -1);
+            t.equal(utils.versionCompar('1.4.3', '1.2.3'), +1);
+            t.equal(utils.versionCompar('1.2.3', '4.2.3'), -1);
+            t.equal(utils.versionCompar('4.2.3', '1.2.3'), +1);
+
+            t.equal(utils.versionCompar('1.2.3', '1.2'), +1);
+            t.equal(utils.versionCompar('1.2.3', '2'), -1);
+            t.equal(utils.versionCompar('1.2.3', '1'), +1);
+
+            t.done();
         },
     },
 
