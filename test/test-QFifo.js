@@ -28,7 +28,7 @@ module.exports = {
                 t.done();
             },
 
-            'does not pre-creates the file': function(t) {
+            'does not pre-create the file': function(t) {
                 var fifo = new QFifo(fifopath);
                 t.ok(!fileUtils.fileExists(fifopath));
                 t.done();
