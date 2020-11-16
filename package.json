@@ -1,7 +1,7 @@
 {
   "name": "minque",
   "description": "very lean durable job queue",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "main": "lib/app",
   "keywords": ["queue", "job", "serverless"],
   "files": ["lib", "config", "README.md", "QUEUE.md", "LICENSE"],
