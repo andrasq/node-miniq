@@ -17,8 +17,9 @@ module.exports = {
     },
 
     'makeLogger': {
-        'returns logger': function(t) {
+        'returns a logger': function(t) {
             var uut = utils.makeLogger('test-log');
+            t.ok(uut instanceof utils.QLog);
             t.equal(typeof uut.trace, 'function');
             t.equal(typeof uut.debug, 'function');
             t.equal(typeof uut.info, 'function');
