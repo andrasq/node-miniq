@@ -69,7 +69,7 @@ module.exports = {
                 utils.repeatUntil(function(done) {
                     var line = fifo.shift();
                     if (line) lines[count++] = line;
-                    done(null, fifo.eof);
+                    done(null, fifo.isEof());
                 },
                 function(err) {
                     t.ifError(err);
@@ -149,6 +149,39 @@ module.exports = {
                     t.equal(fifo.error.message, 'mock write error');
                     t.done();
                 })
+            },
+
+            'is fast': function(t) {
+                var nlines = 10000;
+                var logline = new Array(200).join('x') + '\n';
+                var fifo = new QFifo(fifopath);
+
+                utils.iterateSteps([
+                    function(next) {
+                        console.time('qfifo write ' + nlines);
+                        for (var i = 0; i < nlines; i++) fifo.push(logline);
+                        fifo.wsync(next);
+                    },
+                    function(next) {
+                        console.timeEnd('qfifo write ' + nlines);
+                        next();
+                    },
+                    function(next) {
+                        fifo.reopen();
+                        var nread = 0;
+                        console.time('qfifo read ' + nlines);
+                        utils.repeatUntil(function(done) {
+                            for (var j = 0; j < 10; j++) {
+                                var line = fifo.shift();
+                                if (line) nread += 1;
+                            }
+                            done(null, fifo.isEof());
+                        }, function(err) {
+                            console.timeEnd('qfifo read ' + nlines);
+                            next();
+                        })
+                    },
+                ], t.done);
             },
         },
     },
