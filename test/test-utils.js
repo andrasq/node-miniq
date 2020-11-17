@@ -41,7 +41,8 @@ module.exports = {
             t.contains(spy.args[0][0], '"message":"mock error');
             t.contains(spy.args[0][0], '"id":"test-log"');
             t.contains(spy.args[0][0], '123');
-            t.contains(spy.args[0][0], '[Circular]');
+            // NOTE: node-v13 changed the formatting of circular items to [Circular *1] to point to <ref *1>
+            t.contains(spy.args[0][0], 'Circular');
             t.done();
         },
 
