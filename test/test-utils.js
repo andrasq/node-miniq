@@ -16,6 +16,16 @@ module.exports = {
         },
     },
 
+    'reparent': {
+        'makes object instanceof': function(t) {
+            var x = {};
+            utils.reparent(x, /regex/);
+            t.ok(x instanceof RegExp);
+            t.equal(x.constructor, RegExp);
+            t.done();
+        },
+    },
+
     'makeLogger': {
         'returns a logger': function(t) {
             var uut = utils.makeLogger('test-log');
