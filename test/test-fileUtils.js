@@ -28,6 +28,8 @@ module.exports = {
 
         'reads lines': function(t) {
             var sourceFile = __filename;
+// FIXME: js crashes oom:
+// sourceFile = '/home/andras/node/out3';
             var expect = fs.readFileSync(sourceFile);
             var lines = [];
             var lineReader = fileUtils.makeLineReader(sourceFile);
