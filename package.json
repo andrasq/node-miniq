@@ -14,7 +14,8 @@
 
   "dependencies": {
     "microreq": "0.11.0",
-    "microrest": "0.6.4"
+    "microrest": "0.6.4",
+    "qfifo": "0.2.1"
   },
   "devDependencies": {
   },
