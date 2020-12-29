@@ -622,6 +622,14 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
                 t.done();
             });
         },
+
+        'removes and returns selected items': function(t) {
+            var items = [0, 0, 1, 2, 3, 4];
+            var found = utils.filterUpdate(items, function(x) { return x % 2 }, null, { remove: true });
+            t.deepEqual(found, [1, 3]);
+            t.deepEqual(items, [0, 0, 2, 4]);
+            t.done();
+        },
     },
 
     'merge2': {
