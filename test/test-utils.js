@@ -305,11 +305,11 @@ console.log("AR: got ids", ids);
         },
 
         'can generate many ids in one call without duplicates': function(t) {
-            var t1 = Date.now();
+            var t1 = utils.microtime();
             var count = 500000;
             var ids = utils.getIds('-mque-', count);
-            var t2 = Date.now();
-console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length / (t2 - t1)) >>> 0);
+            var t2 = utils.microtime();
+t.printf("AR: got %d ids batched in %.3f ms, %d/ms\n", ids.length, (t2 - t1) * 1000, (ids.length / (t2 - t1) / 1000));
 
             t.equal(ids.length, count);
             for (var i = 1; i < ids.length; i++) t.ok(ids[i - 1] < ids[i]);
@@ -317,21 +317,16 @@ console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length /
         },
 
         'can generate many ids singly without duplicates': function(t) {
-            var ids = new Array();
-            var t1 = Date.now();
+            var t1 = utils.microtime();
             var count = 500000;
-            utils.repeatUntil(function(next) {
-                for (var i=0; i<100; i++) ids.push(utils.getId('-mque-'));
-                next(null, ids.length >= count);
-            },
-            function(err) {
-                var t2 = Date.now();
-console.log("AR: got %d ids in %d ms, %d/ms", ids.length, t2 - t1, (ids.length / (t2 - t1)) >>> 0);
+            var ids = new Array(count);
+            for (var i = 0; i < count; i++) ids[i] = utils.getId('-mque-');
+            var t2 = utils.microtime();
+t.printf("AR: got %d ids singly in %.3f ms, %d/ms\n", ids.length, (t2 - t1) * 1000, (ids.length / ((t2 - t1) * 1000)));
 
-                t.equal(ids.length, count);
-                for (var i = 1; i < ids.length; i++) t.ok(ids[i - 1] < ids[i]);
-                t.done();
-            })
+            t.equal(ids.length, count);
+            for (var i = 1; i < ids.length; i++) t.ok(ids[i - 1] < ids[i]);
+            t.done();
         },
 
         'correctly rolls sequence just before timestamp change': function(t) {
