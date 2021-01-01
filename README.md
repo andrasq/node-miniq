@@ -8,6 +8,37 @@ _WORK IN PROGRESS_
 See also Quick_Queue in github.com://andrasq/quicklib/
 
 
+Structure
+---------
+
+### Job
+
+    { id: string,
+      type: string,
+      dt: Date,
+      lock: string,
+      data: string|binary|null }
+
+- `id`   globally unique job id, assigned when job is added.  Encodes the
+         ingestion time and daemon that received the job.
+- `type` job type identifies the procedure that will run the job
+- `dt`   timestamp, used for scheduling
+- `lock` owner, used for scheduling
+- `data` job payload, a newline terminated byte string
+
+### Date and Lock
+
+The job timestamp `dt` and and owner `lock` encode the job disposition:  deferred, ready,
+running, abandoned, completed.
+
+| *dt*     | *lock*     | *state* |
+| > now    | `''`       | deferred: job not yet eligible to be run |
+| &lt; now | `''`       | ready: job waiting to be run |
+| > now    | _sysid_    | running: job is being run by daemon _sysid_ |
+| &lt; now | _sysid_    | abandoned: daemon _sysid_ has stalled or crashed |
+| > 3000   | `'__done'` | done: job completed at `dt - 1000 * YEARS`, waiting to be purged |
+
+
 API
 ---
 
