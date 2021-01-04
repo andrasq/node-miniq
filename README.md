@@ -38,6 +38,29 @@ running, abandoned, completed.
 | &lt; now | _sysid_    | abandoned: daemon _sysid_ has stalled or crashed |
 | > 3000   | `'__done'` | done: job completed at `dt - 1000 * YEARS`, waiting to be purged |
 
+### Journal
+
+Jobs are added by `type` and `payload`, get tagged with a system-wide unique `id` and are
+persisted to a fast local journal as `|` bar separated, newline terminated `id|type|payload\n`
+strings.  The journal is consumed and saved to the job store asynchronously.  Each job is
+guaranteed to be saved at least once (in case of error it's possible that a job may get
+re-saved.  The store may, but is not required to, de-dup by id.)
+
+### Store
+
+The store holds jobs to be run.  Running jobs are claimed (locked) by a damon.  Locks are kept
+refreshed until they complete.  An expired lock is a sign that the daemon stalled or crashed.
+The store also provides information about the job types waiting to be run, to assist scheduling.
+Jobs are added to and removed from the store as objects, no longer Journal strings.
+
+### Runner
+
+The runner instantiates the procedures to process the job types, and feeds the procedure the job
+payloads.  Jobs that crash are retried, otherwise the exit status is just logged.  Each job is
+guaranteed to be run at least once (possibly more than once if the job or the runner crashes).
+Results are not propagated because jobs run asynchronously and there is no agent to deliver
+results to.  Jobs can submit other jobs, though, and can thus deliver results themselves.
+
 
 API
 ---

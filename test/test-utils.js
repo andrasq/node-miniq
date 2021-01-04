@@ -309,7 +309,7 @@ console.log("AR: got ids", ids);
             var count = 500000;
             var ids = utils.getIds('-mque-', count);
             var t2 = utils.microtime();
-t.printf("AR: got %d ids batched in %.3f ms, %d/ms\n", ids.length, (t2 - t1) * 1000, (ids.length / (t2 - t1) / 1000));
+t.printf("AR: got %d ids batched in %0.3f ms, %d/ms\n", ids.length, (t2 - t1) * 1000, (ids.length / (t2 - t1) / 1000));
 
             t.equal(ids.length, count);
             for (var i = 1; i < ids.length; i++) t.ok(ids[i - 1] < ids[i]);
@@ -322,7 +322,7 @@ t.printf("AR: got %d ids batched in %.3f ms, %d/ms\n", ids.length, (t2 - t1) * 1
             var ids = new Array(count);
             for (var i = 0; i < count; i++) ids[i] = utils.getId('-mque-');
             var t2 = utils.microtime();
-t.printf("AR: got %d ids singly in %.3f ms, %d/ms\n", ids.length, (t2 - t1) * 1000, (ids.length / ((t2 - t1) * 1000)));
+t.printf("AR: got %d ids singly in %0.3f ms, %d/ms\n", ids.length, (t2 - t1) * 1000, (ids.length / ((t2 - t1) * 1000)));
 
             t.equal(ids.length, count);
             for (var i = 1; i < ids.length; i++) t.ok(ids[i - 1] < ids[i]);
