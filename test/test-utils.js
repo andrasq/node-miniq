@@ -433,11 +433,28 @@ t.printf("AR: got %d ids singly in %0.3f ms, %d/ms\n", ids.length, (t2 - t1) * 1
             this.uut.schedule(10, noop);
             this.uut.schedule('200', noop);
             this.uut.schedule('3s', noop);
-            t.equal(this.uut.jobs.length, 3);
+            this.uut.schedule('.5s', noop);
+            this.uut.schedule('0.5s', noop);
+            this.uut.schedule('5.s', noop);
+            t.equal(this.uut.jobs.length, 6);
             // NOTE: this assertion can fail on slower computers:
             t.ok(this.uut.jobs[0].next > Date.now() + 10-2 && this.uut.jobs[0].next < Date.now() + 10+2);
             t.ok(this.uut.jobs[1].next > Date.now() + 200-2 && this.uut.jobs[1].next < Date.now() + 200+2);
             t.ok(this.uut.jobs[2].next > Date.now() + 3000-2 && this.uut.jobs[2].next < Date.now() + 3000+2);
+            t.ok(this.uut.jobs[3].next > Date.now() + 500-2 && this.uut.jobs[3].next < Date.now() + 500+2);
+            t.ok(this.uut.jobs[4].next > Date.now() + 500-2 && this.uut.jobs[4].next < Date.now() + 500+2);
+            t.ok(this.uut.jobs[5].next > Date.now() + 5000-2 && this.uut.jobs[5].next < Date.now() + 5000+2);
+            t.done();
+        },
+
+        'cancels jobs': function(t) {
+            var fn1 = function(){};
+            var fn2 = function(){};
+            this.uut.schedule(10, fn1);
+            this.uut.schedule(20, fn2);
+            this.uut.cancel(fn1);
+            t.equal(this.uut.jobs.length, 1);
+            t.equal(this.uut.jobs[0].fn, fn2);
             t.done();
         },
 
